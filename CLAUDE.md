@@ -33,7 +33,8 @@ c:\dev\page\
    ├─ index7.html      # 7차 초안 (localStorage 영속성 + 데모 데이터 초기화)
    ├─ index8.html      # 8차 초안 (콘도 이미지 업로드 자동 저장, serve.ps1 확장)
    ├─ index9.html      # 9차 초안 (콘도 '구분'(회원가/무상) 추가)
-   └─ index10.html     # 10차 초안 (image/ 폴더 파일명 자동 매칭) ← 현재 최신
+   ├─ index10.html     # 10차 초안 (image/ 폴더 파일명 자동 매칭)
+   └─ index11.html     # 11차 초안 (콘도 홈페이지 링크 웹 검색 반영) ← 현재 최신
 ```
 
 ### 초안 저장 규칙 (사용자 지정, 반드시 지킬 것)
@@ -327,7 +328,24 @@ c:\dev\page\
   깨지지 않는지 확인. 배포 후에도 `curl`로 `image/manifest.json`과 이미지 파일이
   실제로 `https://samhodevai-cyber.github.io/pagedraft2/`에서 200으로 응답하는 것까지 확인.
 
-## 3. 현재 구현 상태 (index10.html 기준 = 최신)
+### 턴 15 — 콘도 홈페이지 링크 웹 검색 반영 (index11.html 신규 생성)
+- 사용자: "홈페이지 링크도 각각 인터넷에서 검색해서 공식 홈페이지 링크를 알아서 삽입해줘."
+- 조치: `WebSearch`로 6개 콘도를 각각 검색.
+  - 5곳은 공식 홈페이지를 찾아 `homepage` 필드에 반영: 용평 베르데힐(yongpyong.co.kr),
+    켄싱턴 리조트 설악(kensington.co.kr), 켄싱턴 리조트 충주(kensington.co.kr/rcj —
+    충주 지점 전용 페이지라 특정해서 사용), 금호리조트 강릉(kumhoresort.co.kr),
+    평창 아이원리조트(iwantresort.co.kr).
+  - **"롯데리조트 광주"는 검색 결과 실제로 존재하지 않는 지점으로 확인됨**(롯데리조트는
+    속초/부여/김해/제주 4곳만 운영 중, 광주에는 별도 브랜드인 "브리브 바이 롯데호텔"만
+    있음) → **추측해서 아무 링크나 넣지 않고 `homepage`를 빈 문자열로 유지**, 사용자에게
+    이 사실을 먼저 알리고 진행함(기존 정책: 확인 안 된 값은 추측하지 않는다 — 턴6/7 참고).
+  - index10.html을 복사해 [origin/index11.html](origin/index11.html) 생성 후 위 5개
+    콘도의 `homepage` 필드만 수정.
+- 검증: 로컬 서버로 6개 콘도의 `homepage` 값이 의도대로 채워졌는지(5곳) 확인, 직원
+  상세 화면에서 c1(용평)은 "홈페이지 바로가기 : 링크" 블록이 정상 노출되고, c5(롯데
+  광주)는 블록 자체가 안 보이는 것까지 실제 클릭으로 확인.
+
+## 3. 현재 구현 상태 (index11.html 기준 = 최신)
 
 ### 화면 흐름
 - 최초 진입 → **로그인 화면**(사번/성명/비밀번호). 인증 성공해야 앱 진입.
@@ -499,9 +517,11 @@ bookedDatesByCondo: { condo_id: [ "YYYY-MM-DD", ... ] }  # 콘도별 마감일
   구현한다(턴10) — 묻지마 구현 금지.
 
 ---
-_다음 작업 시: 최신 초안은 `origin\index10.html`. 추가 변경 요청이 오면 index10.html을
-복사해 `origin\index11.html`로 새로 만들고, 그 위에서 변경사항을 반영한다.
-(기존 index.html~index10.html은 모두 그대로 보존). `serve.ps1`의 기본 진입 파일도
+_다음 작업 시: 최신 초안은 `origin\index11.html`. 추가 변경 요청이 오면 index11.html을
+복사해 `origin\index12.html`로 새로 만들고, 그 위에서 변경사항을 반영한다.
+(기존 index.html~index11.html은 모두 그대로 보존). "롯데리조트 광주"는 실제로 존재하지
+않는 지점으로 확인됐으므로(턴15), 이후에도 이 콘도의 `homepage`를 추측해서 채우지 말 것
+— 사용자가 이름을 바로잡거나 실제 지점으로 교체하기 전까지는 빈 값 유지. `serve.ps1`의 기본 진입 파일도
 새 버전으로 갱신할 것 — **단, Bash의 PowerShell `-replace`/`Set-Content`로 고치지
 말고 Edit 도구로 직접 줄을 바꿀 것**(턴12에서 한글 주석이 깨졌던 사고 참고).
 index7.html부터는 mutating 메서드에 `persist()` 호출을 빠뜨리지 않도록 주의(턴10
