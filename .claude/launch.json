@@ -6,6 +6,12 @@
       "runtimeExecutable": "powershell.exe",
       "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "serve.ps1"],
       "port": 8731
+    },
+    {
+      "name": "static-portal",
+      "runtimeExecutable": "powershell.exe",
+      "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "portal/serve-portal.ps1"],
+      "port": 8732
     }
   ]
 }
