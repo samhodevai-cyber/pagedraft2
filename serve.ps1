@@ -51,7 +51,7 @@ while ($listener.IsListening) {
       $res.OutputStream.Write($resBody, 0, $resBody.Length)
     }
     else {
-      if ($path -eq "/") { $path = "/index15.html" }
+      if ($path -eq "/") { $path = "/index16.html" }
       if ($path -like "/image/*") {
         $filePath = Join-Path $PSScriptRoot ($path.TrimStart("/"))
       } else {
