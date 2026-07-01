@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>제휴 콘도 예약</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --line: #e3e7ef;
+    --text: #1f2433;
+    --muted: #6b7280;
+    --brand: #3b5bdb;
+    --brand-dark: #2f49b3;
+    --accent: #f59f00;
+    --danger: #e03131;
+    --danger-bg: #ffe3e3;
+    --ok: #2f9e44;
+    --ok-bg: #ebfbee;
+    --warn: #f08c00;
+    --warn-bg: #fff4e6;
+    --shadow: 0 1px 3px rgba(20, 30, 60, .08), 0 6px 20px rgba(20, 30, 60, .06);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  input, select, textarea { font-family: inherit; font-size: 14px; }
+  a { color: inherit; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    flex-wrap: wrap;
+  }
+  .topbar .logo { font-weight: 800; font-size: 17px; color: var(--brand); }
+  .topbar .spacer { flex: 1; }
+  .topbar .userbox { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tabs button {
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--muted);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .tabs button.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .btn-logout {
+    border: 1px solid var(--line); background: #fff; color: var(--muted);
+    padding: 6px 12px; border-radius: 8px; font-size: 12px;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 22px 18px 60px; }
+  h2.section { font-size: 20px; margin: 4px 0 16px; }
+  .muted { color: var(--muted); }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    border: none; border-radius: 10px; padding: 11px 18px;
+    font-size: 14px; font-weight: 600; background: var(--brand); color: #fff;
+  }
+  .btn:hover { background: var(--brand-dark); }
+  .btn.block { width: 100%; }
+  .btn.ghost { background: #fff; color: var(--text); border: 1px solid var(--line); }
+  .btn.ghost:hover { background: #f6f8fc; }
+  .btn.sm { padding: 7px 12px; font-size: 13px; }
+  .btn.warn { background: var(--warn); }
+  .btn.ok { background: var(--ok); }
+  .btn.danger { background: var(--danger); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn.status-active { box-shadow: 0 0 0 2px rgba(31,36,51,.55) inset; }
+
+  /* ---------- Login ---------- */
+  .login-wrap {
+    min-height: calc(100vh - 0px);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .login-card {
+    background: var(--card); width: 100%; max-width: 380px;
+    border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px 26px;
+  }
+  .login-card h1 { font-size: 22px; margin: 0 0 6px; }
+  .login-card p.sub { margin: 0 0 22px; color: var(--muted); font-size: 13px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 11px 12px; border: 1px solid var(--line);
+    border-radius: 10px; background: #fbfcfe; outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--brand); background: #fff; }
+  .err { color: var(--danger); font-size: 13px; margin: 8px 0 0; min-height: 18px; }
+  .hint-box { background: #f0f4ff; border: 1px solid #dbe4ff; color: #364fc7;
+    font-size: 12px; border-radius: 10px; padding: 10px 12px; margin-top: 16px; }
+
+  /* ---------- Cards grid ---------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .condo-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: transform .12s, box-shadow .12s;
+  }
+  .condo-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(20,30,60,.12); }
+  .condo-photo { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 46px; overflow: hidden; position: relative; }
+  .condo-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .condo-photo img.condo-photo-img { object-fit: contain; opacity: .5; }
+  .condo-body { padding: 14px 16px 18px; }
+  .condo-body h3 { margin: 0 0 4px; font-size: 16px; }
+  .condo-body .loc { font-size: 13px; color: var(--muted); }
+
+  /* ---------- Detail ---------- */
+  .detail-header {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 20px; box-shadow: var(--shadow); display: flex; gap: 16px; align-items: center; margin-bottom: 18px;
+  }
+  .detail-header .icon { font-size: 44px; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .detail-header .icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+  .detail-header h2 { margin: 0 0 2px; font-size: 20px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 20px; box-shadow: var(--shadow); }
+  .panel h3 { margin: 0 0 14px; font-size: 16px; }
+
+  /* ---------- Calendar (booking) ---------- */
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cal-head .title { font-weight: 700; }
+  .cal-nav { border: 1px solid var(--line); background: #fff; border-radius: 8px; width: 32px; height: 32px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dow { text-align: center; font-size: 12px; color: var(--muted); padding: 4px 0; font-weight: 600; }
+  .cal-cell {
+    aspect-ratio: 1 / 1; border: 1px solid transparent; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+    background: #f6f8fc; cursor: pointer; user-select: none;
+  }
+  .cal-cell.empty { background: transparent; cursor: default; }
+  .cal-cell.past { color: #c5cad6; background: #f6f8fc; cursor: not-allowed; }
+  .cal-cell.avail:hover { border-color: var(--brand); }
+  .cal-cell.booked { background: var(--danger-bg); color: var(--danger); cursor: not-allowed; text-decoration: line-through; }
+  .cal-cell.sel { background: var(--brand); color: #fff; font-weight: 700; }
+  .cal-cell.inrange { background: #dbe4ff; color: var(--brand-dark); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+  .cal-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* ---------- Schedule calendar (admin 전체 일정 · 캘린더 보기) ---------- */
+  .sched-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .sched-cal-cell { min-height: 92px; max-height: 160px; overflow-y: auto; border: 1px solid var(--line);
+    border-radius: 9px; background: #fff; padding: 6px; }
+  .sched-cal-cell.empty { background: transparent; border-color: transparent; }
+  .sched-cal-cell .daynum { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .sched-entry { font-size: 11px; border-radius: 6px; padding: 3px 6px; margin-bottom: 3px; line-height: 1.35; background: #f6f8fc; }
+  .sched-entry.recv { background: #e7f5ff; color: #1971c2; }
+  .sched-entry.review { background: var(--warn-bg); color: var(--warn); }
+  .sched-entry.approved { background: var(--ok-bg); color: var(--ok); }
+  .sched-entry.rejected { background: var(--danger-bg); color: var(--danger); text-decoration: line-through; }
+
+  /* ---------- Tables / lists ---------- */
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 12px; margin-bottom: 20px; }
+  .summary .scard { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px; box-shadow: var(--shadow); }
+  .summary .scard .num { font-size: 28px; font-weight: 800; }
+  .summary .scard .lbl { font-size: 13px; color: var(--muted); }
+
+  .reqlist { display: flex; flex-direction: column; gap: 12px; }
+  .reqcard { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; box-shadow: var(--shadow); }
+  .reqcard .row1 { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+  .reqcard h4 { margin: 0 0 4px; font-size: 15px; }
+  .reqcard .meta { font-size: 13px; color: var(--muted); }
+  .reqcard .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .reject-reason { background: var(--danger-bg); color: #c92a2a; border-radius: 8px; padding: 8px 10px;
+    font-size: 13px; margin-top: 10px; }
+
+  .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .badge.recv { background: #e7f5ff; color: #1971c2; }
+  .badge.review { background: var(--warn-bg); color: var(--warn); }
+  .badge.approved { background: var(--ok-bg); color: var(--ok); }
+  .badge.rejected { background: var(--danger-bg); color: var(--danger); }
+
+  .empty-state { text-align: center; color: var(--muted); padding: 40px 0; }
+  .divider { border: none; border-top: 1px solid var(--line); margin: 32px 0 22px; }
+
+  /* ---------- Schedule table (admin 전체 일정 · 리스트 보기) ---------- */
+  .table-wrap { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow-x: auto; }
+  table.sched { width: 100%; border-collapse: collapse; min-width: 640px; }
+  table.sched th, table.sched td { text-align: left; padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--line); }
+  table.sched th { background: #f6f8fc; color: var(--muted); font-weight: 700; font-size: 13px; }
+  table.sched tr:last-child td { border-bottom: none; }
+  .filterbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+  .filterbar select { padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+
+  /* ---------- Modal ---------- */
+  .overlay { position: fixed; inset: 0; background: rgba(15,20,40,.45); display: none;
+    align-items: center; justify-content: center; z-index: 50; padding: 18px; }
+  .overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: var(--radius); padding: 24px; width: 100%; max-width: 420px; box-shadow: var(--shadow); }
+  .modal h3 { margin: 0 0 6px; }
+
+  /* ---------- Toast ---------- */
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+    background: #1f2433; color: #fff; padding: 13px 20px; border-radius: 12px; font-size: 14px;
+    box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: .3s; z-index: 60; max-width: 90vw; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .hidden { display: none !important; }
+  .policy { background: var(--warn-bg); color: #b86200; border: 1px solid #ffe8cc;
+    font-size: 12px; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; }
+  .notice-banner { color: #e8590c; background: #fff4e6; border: 1px solid #ffd8a8;
+    border-radius: 10px; padding: 11px 16px; font-size: 13px; font-weight: 700; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="view-login" class="login-wrap">
+  <div class="login-card">
+    <h1>제휴 콘도 예약</h1>
+    <p class="sub">사내 임직원 전용 · 로그인 후 이용 가능합니다</p>
+    <div class="field">
+      <label for="login-empid">사번</label>
+      <input id="login-empid" placeholder="예: 1001" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="login-name">성명</label>
+      <input id="login-name" placeholder="예: 홍길동" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="login-pw">비밀번호</label>
+      <input id="login-pw" type="password" placeholder="비밀번호" />
+    </div>
+    <div class="err" id="login-err"></div>
+    <button class="btn block" id="login-submit">확인</button>
+    <div class="hint-box">
+      <b>데모 계정</b><br/>
+      직원: 사번 <code>1001</code> / 홍길동 / pw <code>1234</code><br/>
+      관리자: 사번 <code>9001</code> / 김총무 / pw <code>admin</code>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP (after login) ===================== -->
+<div id="app" class="hidden">
+  <div class="topbar">
+    <div class="logo">🏨 콘도 예약</div>
+    <div class="tabs" id="main-tabs"></div>
+    <div class="spacer"></div>
+    <div class="userbox">
+      <span id="who"></span>
+      <button class="btn-logout" id="logout">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="notice-banner hidden" id="employee-notice">
+      📌 콘도 이용 안내: 문의 사항은 비서실(02-2026-7701) 번으로 문의 바랍니다.
+    </div>
+
+    <!-- ---- Employee: cards + my reservations (한 화면) ---- -->
+    <section id="view-cards" class="view">
+      <h2 class="section">제휴 콘도</h2>
+      <div class="cards" id="condo-cards"></div>
+
+      <hr class="divider" />
+      <h2 class="section">내 예약 신청 현황</h2>
+      <div class="reqlist" id="my-reqlist"></div>
+    </section>
+
+    <!-- ---- Employee: 문의 사항 접수 ---- -->
+    <section id="view-inquiry" class="view hidden">
+      <h2 class="section">문의 사항 접수</h2>
+      <div class="panel" style="max-width:560px;">
+        <div class="field">
+          <label for="inq-title">제목</label>
+          <input id="inq-title" placeholder="문의 제목을 입력하세요" />
+        </div>
+        <div class="field">
+          <label for="inq-message">문의사항</label>
+          <textarea id="inq-message" rows="6" placeholder="문의 내용을 입력하세요"></textarea>
+        </div>
+        <div class="err" id="inq-err"></div>
+        <button class="btn block" id="inq-send">발송</button>
+      </div>
+    </section>
+
+    <!-- ---- Employee: detail (calendar + form) ---- -->
+    <section id="view-detail" class="view hidden">
+      <button class="btn ghost sm" id="back-to-cards" style="margin-bottom:16px;">← 목록으로</button>
+      <div class="detail-header" id="detail-header"></div>
+      <div class="grid-2">
+        <div class="panel">
+          <h3>날짜 선택</h3>
+          <div class="field" style="margin-bottom:16px;">
+            <label for="room-select">객실 타입</label>
+            <select id="room-select"></select>
+          </div>
+          <div class="cal-head">
+            <button class="cal-nav" id="cal-prev">‹</button>
+            <span class="title" id="cal-title"></span>
+            <button class="cal-nav" id="cal-next">›</button>
+          </div>
+          <div class="cal-grid" id="cal-dow"></div>
+          <div class="cal-grid" id="cal-grid" style="margin-top:4px;"></div>
+          <div class="legend">
+            <span><i class="dot" style="background:#f6f8fc;border:1px solid var(--line);"></i> 예약 가능</span>
+            <span><i class="dot" style="background:var(--danger-bg);"></i> 마감</span>
+            <span><i class="dot" style="background:var(--brand);"></i> 선택중</span>
+          </div>
+          <div class="cal-note">※ 최대 <b>3박 4일</b>까지 선택할 수 있습니다.</div>
+        </div>
+
+        <div class="panel">
+          <h3>예약 신청</h3>
+          <div class="policy">ℹ️ 사내 정책: 제휴 콘도는 1인 <b>연 1회</b> 이용을 권장하며, <b>최대 3박 4일</b>까지 신청 가능합니다.</div>
+          <div class="field">
+            <label>체크인 / 체크아웃</label>
+            <input id="f-dates" readonly placeholder="달력에서 날짜를 선택하세요" />
+          </div>
+          <div class="field">
+            <label for="f-room">객실 타입</label>
+            <input id="f-room" readonly />
+          </div>
+          <div class="field">
+            <label for="f-guests">인원수</label>
+            <input id="f-guests" type="number" min="1" value="2" />
+          </div>
+          <div class="field">
+            <label for="f-phone">연락처 (선택)</label>
+            <input id="f-phone" placeholder="예: 010-1234-5678" />
+          </div>
+          <div class="field">
+            <label for="f-note">신청 사유 / 비고 (선택)</label>
+            <textarea id="f-note" rows="3" placeholder="예: 가족 여행"></textarea>
+          </div>
+          <div class="err" id="form-err"></div>
+          <button class="btn block" id="submit-booking">예약 신청</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Admin: 콘도 관리 ---- -->
+    <section id="view-condos" class="view hidden">
+      <h2 class="section">콘도 관리</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <h3 id="condo-form-title">새 콘도 추가</h3>
+          <div class="field"><label for="cf-name">콘도명</label><input id="cf-name" placeholder="예: 용평 베르데힐" /></div>
+          <div class="field"><label for="cf-region">위치</label><input id="cf-region" placeholder="예: 강원 평창" /></div>
+          <div class="field"><label for="cf-desc">소개말</label><textarea id="cf-desc" rows="2" placeholder="콘도 소개 문구"></textarea></div>
+          <div class="field"><label for="cf-icon">카드 이미지 (이모지)</label><input id="cf-icon" placeholder="예: 🏔️" /></div>
+          <div class="field"><label for="cf-color">카드 색상</label><input id="cf-color" type="color" value="#e7f5ff" /></div>
+          <div class="field"><label for="cf-image">이미지 URL / 경로 (선택, 입력 시 이모지 대신 사진 표시)</label><input id="cf-image" placeholder="예: image/c1.png 또는 https://..." /></div>
+          <div class="field">
+            <label for="cf-image-file">카드 이미지 업로드 (PNG로 저장)</label>
+            <input id="cf-image-file" type="file" accept="image/png,image/jpeg,image/webp" />
+            <div class="cal-note">이미지를 선택하면 PNG로 변환해 자동 다운로드합니다. 다운로드된 파일을 프로젝트의 <code>image</code> 폴더로 옮겨주세요(브라우저는 보안상 디스크에 직접 저장할 수 없습니다). 이번 세션 동안은 옮기지 않아도 카드에서 바로 미리볼 수 있습니다.</div>
+            <div id="cf-image-preview" style="margin-top:8px;"></div>
+          </div>
+          <div class="field"><label for="cf-facilities">부대시설 (쉼표로 구분)</label><input id="cf-facilities" placeholder="예: 실내수영장, 사우나, 키즈룸" /></div>
+          <div class="field"><label for="cf-notes">특이사항</label><textarea id="cf-notes" rows="2" placeholder="예: 체크인 15시 / 체크아웃 11시"></textarea></div>
+          <div class="err" id="condo-form-err"></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn block" id="condo-save">저장</button>
+            <button class="btn ghost" id="condo-new" style="display:none;white-space:nowrap;">새 콘도로 작성</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>등록된 콘도 (<span id="condo-count">0</span>)</h3>
+          <div class="reqlist" id="condo-mgmt-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Admin: 전체 일정 ---- -->
+    <section id="view-schedule" class="view hidden">
+      <h2 class="section">전체 일정</h2>
+      <div class="tabs" style="margin-bottom:18px;">
+        <button id="sched-mode-cal">캘린더로 보기</button>
+        <button id="sched-mode-list">리스트로 보기</button>
+      </div>
+
+      <div id="sched-calendar-wrap">
+        <div class="panel">
+          <div class="cal-head">
+            <button class="cal-nav" id="sched-cal-prev">‹</button>
+            <span class="title" id="sched-cal-title"></span>
+            <button class="cal-nav" id="sched-cal-next">›</button>
+          </div>
+          <div class="cal-grid" id="sched-cal-dow"></div>
+          <div class="sched-cal-grid" id="sched-cal-grid" style="margin-top:4px;"></div>
+          <div class="cal-note">※ 각 날짜 칸에는 신청자명 · 콘도명 · 상태가 먼저 신청한 순서대로 위에서부터 표시됩니다.</div>
+        </div>
+      </div>
+
+      <div id="sched-list-wrap" class="hidden">
+        <h3 style="margin:0 0 12px;font-size:16px;">콘도 예약 현황</h3>
+        <div class="filterbar">
+          <label class="muted" style="font-size:13px;">콘도</label>
+          <select id="sched-condo"><option value="">전체 콘도</option></select>
+          <label class="muted" style="font-size:13px;">상태</label>
+          <select id="sched-status">
+            <option value="">전체 상태</option>
+            <option value="승인">승인</option>
+            <option value="접수 신청중">접수 신청중</option>
+            <option value="신청 확인중">신청 확인중</option>
+            <option value="반려">반려</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="sched">
+            <thead>
+              <tr><th>직원 성명</th><th>부서</th><th>콘도명</th><th>선택한 날짜</th><th>인원</th><th>상태</th><th>연락처</th></tr>
+            </thead>
+            <tbody id="sched-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Admin: 신청 처리 ---- -->
+    <section id="view-admin" class="view hidden">
+      <h2 class="section">총무부 관리자 · 신청 현황</h2>
+      <div class="summary" id="status-summary"></div>
+      <div class="reqlist" id="admin-list"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== Reject modal ===================== -->
+<div class="overlay" id="reject-overlay">
+  <div class="modal">
+    <h3>반려 처리</h3>
+    <p class="muted" style="font-size:13px;margin-top:0;">반려 사유를 입력하면 신청자에게 함께 표시됩니다.</p>
+    <div class="field">
+      <textarea id="reject-reason" rows="3" placeholder="예: 해당 기간 사내 행사로 이용 불가"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn ghost sm" id="reject-cancel">취소</button>
+      <button class="btn danger sm" id="reject-confirm">반려 확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Info / alert modal (날짜 안내 팝업) ===================== -->
+<div class="overlay" id="info-overlay">
+  <div class="modal">
+    <h3 id="info-title">안내</h3>
+    <p id="info-body" class="muted" style="font-size:14px;"></p>
+    <div style="display:flex;justify-content:flex-end;">
+      <button class="btn sm" id="info-ok">확인</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   Mock API layer (분리: 추후 REST API로 교체 가능)
+   ========================================================= */
+const api = (() => {
+  const users = [
+    { employee_id: "1001", name: "홍길동", password: "1234", dept: "영업1팀", email: "hong@company.com", role: "employee" },
+    { employee_id: "1002", name: "이영희", password: "1234", dept: "개발팀", email: "lee@company.com", role: "employee" },
+    { employee_id: "9001", name: "김총무", password: "admin", dept: "총무부", email: "admin@company.com", role: "admin" },
+  ];
+
+  const condos = [
+    { id: "c1", name: "용평 베르데힐",       region: "강원 평창", description: "용평리조트 내 프리미엄 콘도", icon: "🏔️", color: "#e7f5ff", image_url: "", facilities: "실내수영장, 사우나, BBQ장", notes: "체크인 15:00 / 체크아웃 11:00" },
+    { id: "c2", name: "켄싱턴 리조트 설악",   region: "강원 속초", description: "설악산 자락의 가족형 리조트", icon: "🏞️", color: "#e6fcf5", image_url: "", facilities: "키즈룸, 노래방, 매점", notes: "반려동물 동반 불가" },
+    { id: "c3", name: "켄싱턴 리조트 충주",   region: "충북 충주", description: "충주호 인근 휴양 리조트",   icon: "🌳", color: "#ebfbee", image_url: "", facilities: "사우나, 무료주차", notes: "" },
+    { id: "c4", name: "금호리조트 강릉",     region: "강원 강릉", description: "경포 해변 오션뷰 리조트",   icon: "🌊", color: "#e3fafc", image_url: "", facilities: "오션뷰 테라스, 편의점", notes: "성수기 주차 혼잡 유의" },
+    { id: "c5", name: "롯데리조트 광주",     region: "전남 광주", description: "도심 근교 휴양 리조트",     icon: "🏙️", color: "#fff4e6", image_url: "", facilities: "피트니스센터, 세미나실", notes: "" },
+    { id: "c6", name: "평창 아이원리조트",   region: "강원 평창", description: "사계절 레저·스파 리조트",   icon: "⛷️", color: "#f3f0ff", image_url: "", facilities: "스파, 스키장 셔틀", notes: "동절기 셔틀 운행" },
+  ];
+
+  const rooms = [
+    { id: "r1",  condo_id: "c1", type: "스탠다드 (4인)", capacity: 4 },
+    { id: "r2",  condo_id: "c1", type: "디럭스 (6인)",   capacity: 6 },
+    { id: "r3",  condo_id: "c2", type: "스탠다드 (4인)", capacity: 4 },
+    { id: "r4",  condo_id: "c2", type: "패밀리 (6인)",   capacity: 6 },
+    { id: "r5",  condo_id: "c3", type: "스탠다드 (4인)", capacity: 4 },
+    { id: "r6",  condo_id: "c4", type: "오션뷰 (4인)",   capacity: 4 },
+    { id: "r7",  condo_id: "c4", type: "스위트 (5인)",   capacity: 5 },
+    { id: "r8",  condo_id: "c5", type: "스탠다드 (4인)", capacity: 4 },
+    { id: "r9",  condo_id: "c6", type: "패밀리 (6인)",   capacity: 6 },
+  ];
+
+  // 콘도(객실) 단위로 독립 관리되는 마감 날짜
+  const bookedDatesByCondo = {
+    c1: ["2026-07-04", "2026-07-05", "2026-07-18"],
+    c2: ["2026-07-11", "2026-07-12", "2026-07-13"],
+    c3: [],
+    c4: ["2026-07-25"],
+    c5: ["2026-07-09"],
+    c6: [],
+  };
+
+  let reservations = [
+    {
+      id: "rv1", employee_id: "1002", employee_name: "이영희", employee_dept: "개발팀", employee_email: "lee@company.com", employee_phone: "010-1234-5678",
+      condo_id: "c2", room_id: "r3", checkin_date: "2026-07-11", checkout_date: "2026-07-13",
+      guests: 3, note: "여름 휴가", status: "승인", reject_reason: null,
+    },
+    {
+      id: "rv2", employee_id: "1001", employee_name: "홍길동", employee_dept: "영업1팀", employee_email: "hong@company.com", employee_phone: "",
+      condo_id: "c1", room_id: "r1", checkin_date: "2026-08-02", checkout_date: "2026-08-04",
+      guests: 2, note: "", status: "접수 신청중", reject_reason: null,
+    },
+  ];
+
+  let seq = 100;
+  let condoSeq = 6;
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+
+  function sendEmail(to, subject, body) {
+    console.log("[mock email] →", to, "\n", subject, "\n", body);
+    return Promise.resolve({ ok: true });
+  }
+
+  return {
+    login: (empid, name, pw) => {
+      const u = users.find(x => x.employee_id === empid && x.name === name && x.password === pw);
+      return u ? clone(u) : null;
+    },
+    getCondos: () => clone(condos),
+    addCondo: (data) => { const c = Object.assign({ id: "c" + (++condoSeq) }, data); condos.push(c); return clone(c); },
+    updateCondo: (id, data) => { const c = condos.find(x => x.id === id); if (!c) return null; Object.assign(c, data); return clone(c); },
+    getRooms: (condoId) => clone(rooms.filter(r => r.condo_id === condoId)),
+    getBookedDates: (condoId) => (bookedDatesByCondo[condoId] || []).slice(),
+    getMyReservations: (empid) => clone(reservations.filter(r => r.employee_id === empid))
+      .sort((a, b) => b.id.localeCompare(a.id)),
+    getAllReservations: () => clone(reservations).sort((a, b) => b.id.localeCompare(a.id)),
+
+    createReservation: (data) => {
+      const r = Object.assign({ id: "rv" + (++seq), status: "접수 신청중", reject_reason: null }, data);
+      reservations.push(r);
+      return clone(r);
+    },
+    cancelReservation: (id, empid) => {
+      const r = reservations.find(x => x.id === id);
+      if (!r || r.employee_id !== empid) return false;
+      if (!["접수 신청중", "신청 확인중"].includes(r.status)) return false;
+      reservations = reservations.filter(x => x.id !== id);
+      return true;
+    },
+    setStatus: (id, status) => {
+      const r = reservations.find(x => x.id === id);
+      if (r) { r.status = status; if (status !== "반려") r.reject_reason = null; }
+      return r ? clone(r) : null;
+    },
+
+    approve: async (id, adminName) => {
+      const r = reservations.find(x => x.id === id);
+      if (!r) return { ok: false, reason: "not_found" };
+      if (r.status === "승인") return { ok: true, alreadyApproved: true, email: r.employee_email };
+      const range = dateRange(r.checkin_date, r.checkout_date);
+      const booked = bookedDatesByCondo[r.condo_id] || (bookedDatesByCondo[r.condo_id] = []);
+      const conflict = range.find(d => booked.includes(d));
+      if (conflict) return { ok: false, reason: "conflict", date: conflict };
+      range.forEach(d => { if (!booked.includes(d)) booked.push(d); });
+      r.status = "승인";
+      await sendEmail(
+        r.employee_email,
+        `[콘도 예약 승인] ${condos.find(c => c.id === r.condo_id).name}`,
+        `${r.employee_name}님, 예약이 승인되었습니다.\n` +
+        `콘도: ${condos.find(c => c.id === r.condo_id).name}\n` +
+        `일정: ${r.checkin_date} ~ ${r.checkout_date}\n` +
+        `인원: ${r.guests}명\n처리자: ${adminName}`
+      );
+      return { ok: true, email: r.employee_email };
+    },
+    reject: (id, reason) => {
+      const r = reservations.find(x => x.id === id);
+      if (r) { r.status = "반려"; r.reject_reason = reason; }
+      return clone(r);
+    },
+
+    sendInquiry: async (data) => {
+      await sendEmail(
+        "dhhwang@samhodev.co.rk",
+        `[콘도 예약 문의] ${data.title}`,
+        `보낸사람: ${data.employee_name} (${data.employee_dept}, 사번 ${data.employee_id})\n\n${data.message}`
+      );
+      return { ok: true };
+    },
+  };
+})();
+
+/* ------- date utils ------- */
+function pad(n) { return String(n).padStart(2, "0"); }
+function ymd(y, m, d) { return `${y}-${pad(m + 1)}-${pad(d)}`; }
+function dateRange(start, end) {
+  const out = [];
+  const s = new Date(start), e = new Date(end);
+  for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+    out.push(`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`);
+  }
+  return out;
+}
+function reservationSeqNum(r) { return parseInt(String(r.id).replace(/[^0-9]/g, ""), 10) || 0; }
+const MAX_NIGHTS = 3; // 최대 3박 4일
+
+/* =========================================================
+   App state + views
+   ========================================================= */
+let currentUser = null;
+let activeCondo = null;
+let activeRoom = null;
+let calYear, calMonth;
+let selStart = null, selEnd = null;
+let pendingRejectId = null;
+let editingCondoId = null;
+let scheduleMode = "calendar";
+let schedCalYear = null, schedCalMonth = null;
+
+const $ = (id) => document.getElementById(id);
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove("show"), 3200);
+}
+
+function infoPopup(msg, title) {
+  $("info-title").textContent = title || "안내";
+  $("info-body").textContent = msg;
+  $("info-overlay").classList.add("show");
+}
+$("info-ok").addEventListener("click", () => $("info-overlay").classList.remove("show"));
+$("info-overlay").addEventListener("click", (e) => { if (e.target.id === "info-overlay") $("info-overlay").classList.remove("show"); });
+
+function badge(status) {
+  const map = { "접수 신청중": "recv", "신청 확인중": "review", "승인": "approved", "반려": "rejected" };
+  return `<span class="badge ${map[status]}">${status}</span>`;
+}
+
+/* ---------- LOGIN ---------- */
+$("login-submit").addEventListener("click", doLogin);
+$("login-pw").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+
+function doLogin() {
+  const empid = $("login-empid").value.trim();
+  const name = $("login-name").value.trim();
+  const pw = $("login-pw").value;
+  if (!empid || !name || !pw) { $("login-err").textContent = "사번, 성명, 비밀번호를 모두 입력하세요."; return; }
+  const u = api.login(empid, name, pw);
+  if (!u) { $("login-err").textContent = "인증에 실패했습니다. 입력값을 확인하세요."; return; }
+  currentUser = u;
+  $("login-err").textContent = "";
+  $("view-login").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("who").textContent = `${u.name} · ${u.dept} (${u.employee_id})`;
+  $("employee-notice").classList.toggle("hidden", u.role !== "employee");
+  buildTabs();
+  if (u.role === "admin") showView("admin"); else showView("cards");
+}
+
+$("logout").addEventListener("click", () => {
+  currentUser = null;
+  $("app").classList.add("hidden");
+  $("view-login").classList.remove("hidden");
+  $("login-pw").value = "";
+});
+
+/* ---------- Tabs / routing ---------- */
+function buildTabs() {
+  const tabs = $("main-tabs");
+  tabs.innerHTML = "";
+  const defs = currentUser.role === "admin"
+    ? [{ k: "condos", t: "콘도 관리" }, { k: "schedule", t: "전체 일정" }, { k: "admin", t: "신청 처리" }]
+    : [{ k: "cards", t: "콘도 예약" }, { k: "inquiry", t: "문의 사항 접수" }];
+  defs.forEach(d => {
+    const b = document.createElement("button");
+    b.textContent = d.t; b.dataset.k = d.k;
+    b.addEventListener("click", () => showView(d.k));
+    tabs.appendChild(b);
+  });
+}
+
+function showView(key) {
+  if (["admin", "schedule", "condos"].includes(key) && currentUser.role !== "admin") { toast("접근 권한이 없습니다."); return; }
+  document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
+  const map = { cards: "view-cards", detail: "view-detail", admin: "view-admin", schedule: "view-schedule", condos: "view-condos", inquiry: "view-inquiry" };
+  $(map[key]).classList.remove("hidden");
+  document.querySelectorAll("#main-tabs button").forEach(b => {
+    b.classList.toggle("active", b.dataset.k === key || (key === "detail" && b.dataset.k === "cards"));
+  });
+  if (key === "cards") { renderCards(); renderMyRes(); }
+  if (key === "admin") renderAdmin();
+  if (key === "schedule") renderSchedule();
+  if (key === "condos") renderCondoMgmt();
+}
+
+/* ---------- Cards ---------- */
+function condoImageSrc(c) {
+  return c.image_data || c.image_url || "";
+}
+function condoPhotoHtml(c) {
+  const src = condoImageSrc(c);
+  // 업로드/지정된 이미지가 있으면 비율 유지 + 50% 투명도로 삽입, 없으면 이모지 아이콘 표시
+  return src ? `<img src="${src}" alt="${c.name}" class="condo-photo-img" />` : (c.icon || "🏨");
+}
+
+function renderCards() {
+  const wrap = $("condo-cards");
+  wrap.innerHTML = "";
+  api.getCondos().forEach(c => {
+    const el = document.createElement("div");
+    el.className = "condo-card";
+    el.innerHTML = `
+      <div class="condo-photo" style="background:${c.color}">${condoPhotoHtml(c)}</div>
+      <div class="condo-body">
+        <h3>${c.name}</h3>
+        <div class="loc">📍 ${c.region} · ${c.description}</div>
+        ${c.facilities ? `<div class="loc" style="margin-top:4px;">🏊 ${c.facilities}</div>` : ""}
+      </div>`;
+    el.addEventListener("click", () => openDetail(c));
+    wrap.appendChild(el);
+  });
+}
+
+/* ---------- Detail + calendar ---------- */
+function openDetail(condo) {
+  activeCondo = condo;
+  const rooms = api.getRooms(condo.id);
+  activeRoom = rooms[0];
+  selStart = selEnd = null;
+  const now = new Date(2026, 6, 1); // 데모 기준 2026-07
+  calYear = now.getFullYear(); calMonth = now.getMonth();
+
+  $("detail-header").innerHTML = `
+    <div class="icon" style="background:${condo.color};border-radius:12px;padding:6px 10px;">${condoPhotoHtml(condo)}</div>
+    <div>
+      <h2>${condo.name}</h2>
+      <div class="muted">📍 ${condo.region} · ${condo.description}</div>
+      ${condo.facilities ? `<div class="muted" style="margin-top:4px;">🏊 부대시설: ${condo.facilities}</div>` : ""}
+      ${condo.notes ? `<div class="muted" style="margin-top:4px;">ℹ️ ${condo.notes}</div>` : ""}
+    </div>`;
+
+  const rs = $("room-select");
+  rs.innerHTML = "";
+  rooms.forEach(r => {
+    const o = document.createElement("option");
+    o.value = r.id; o.textContent = r.type;
+    rs.appendChild(o);
+  });
+  rs.onchange = () => {
+    activeRoom = rooms.find(r => r.id === rs.value);
+    selStart = selEnd = null;
+    syncForm(); renderCalendar();
+  };
+
+  syncForm();
+  renderCalendar();
+  showView("detail");
+}
+
+$("back-to-cards").addEventListener("click", () => showView("cards"));
+$("cal-prev").addEventListener("click", () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
+$("cal-next").addEventListener("click", () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
+
+function renderCalendar() {
+  const dows = ["일", "월", "화", "수", "목", "금", "토"];
+  $("cal-dow").innerHTML = dows.map(d => `<div class="cal-dow">${d}</div>`).join("");
+  $("cal-title").textContent = `${calYear}년 ${calMonth + 1}월`;
+
+  const booked = api.getBookedDates(activeCondo.id);
+  const todayStr = "2026-06-30"; // 데모 기준 오늘
+  const first = new Date(calYear, calMonth, 1).getDay();
+  const days = new Date(calYear, calMonth + 1, 0).getDate();
+
+  const grid = $("cal-grid");
+  grid.innerHTML = "";
+  for (let i = 0; i < first; i++) {
+    grid.insertAdjacentHTML("beforeend", `<div class="cal-cell empty"></div>`);
+  }
+  for (let d = 1; d <= days; d++) {
+    const ds = ymd(calYear, calMonth, d);
+    const cell = document.createElement("div");
+    cell.className = "cal-cell";
+    cell.textContent = d;
+    const isPast = ds < todayStr;
+    const isBooked = booked.includes(ds);
+    if (isBooked) cell.classList.add("booked");
+    else if (isPast) cell.classList.add("past");
+    else {
+      cell.classList.add("avail");
+      if (ds === selStart || ds === selEnd) cell.classList.add("sel");
+      else if (selStart && selEnd && ds > selStart && ds < selEnd) cell.classList.add("inrange");
+      cell.addEventListener("click", () => pickDate(ds));
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function nights(start, end) {
+  return Math.round((new Date(end) - new Date(start)) / 86400000);
+}
+
+function pickDate(ds) {
+  if (!selStart || (selStart && selEnd)) {
+    selStart = ds; selEnd = null;
+  } else {
+    if (ds < selStart) { selStart = ds; selEnd = null; }
+    else if (ds === selStart) { /* same day ignore */ }
+    else {
+      // 선택 구간에 마감일 포함 시: 체크인은 유지하고 체크아웃만 다시 선택
+      const booked = api.getBookedDates(activeCondo.id);
+      const range = dateRange(selStart, ds);
+      const conflictDate = range.find(x => booked.includes(x));
+      if (conflictDate) {
+        infoPopup(`선택하신 구간에 이미 마감된 날짜(${conflictDate})가 포함되어 있습니다. 체크인 날짜(${selStart})는 유지되며, 체크아웃 날짜를 다시 선택해 주세요.`, "날짜 선택 안내");
+        selEnd = null;
+        renderCalendar(); syncForm(); return;
+      }
+      // 최대 3박 4일 제한
+      if (nights(selStart, ds) > MAX_NIGHTS) {
+        infoPopup("예약은 최대 3박 4일까지만 선택할 수 있습니다. 체크아웃 날짜를 다시 선택해 주세요.", "날짜 선택 안내");
+        selEnd = null;
+        renderCalendar(); syncForm(); return;
+      }
+      selEnd = ds;
+    }
+  }
+  renderCalendar();
+  syncForm();
+}
+
+function syncForm() {
+  $("f-room").value = activeRoom ? activeRoom.type : "";
+  if (selStart && selEnd) $("f-dates").value = `${selStart} ~ ${selEnd} (${nights(selStart, selEnd)}박)`;
+  else if (selStart) $("f-dates").value = `${selStart} ~ (체크아웃 선택)`;
+  else $("f-dates").value = "";
+  $("form-err").textContent = "";
+}
+
+$("submit-booking").addEventListener("click", () => {
+  if (!selStart || !selEnd) { $("form-err").textContent = "체크인/체크아웃 날짜를 선택하세요."; return; }
+  if (nights(selStart, selEnd) > MAX_NIGHTS) {
+    infoPopup("예약은 최대 3박 4일까지만 가능합니다.", "날짜 선택 안내"); return;
+  }
+  const guests = parseInt($("f-guests").value, 10);
+  if (!guests || guests < 1) { $("form-err").textContent = "인원수를 올바르게 입력하세요."; return; }
+  if (activeRoom && guests > activeRoom.capacity) {
+    $("form-err").textContent = `해당 객실 정원(${activeRoom.capacity}명)을 초과했습니다.`; return;
+  }
+  api.createReservation({
+    employee_id: currentUser.employee_id, employee_name: currentUser.name,
+    employee_dept: currentUser.dept, employee_email: currentUser.email,
+    employee_phone: $("f-phone").value.trim(),
+    condo_id: activeCondo.id, room_id: activeRoom.id,
+    checkin_date: selStart, checkout_date: selEnd,
+    guests, note: $("f-note").value.trim(),
+  });
+  toast("예약 신청이 접수되었습니다. (상태: 접수 신청중)");
+  $("f-note").value = "";
+  $("f-phone").value = "";
+  selStart = selEnd = null;
+  syncForm(); renderCalendar();
+  showView("cards");
+});
+
+/* ---------- My reservations (카드 아래 표시) ---------- */
+function renderMyRes() {
+  const wrap = $("my-reqlist");
+  const list = api.getMyReservations(currentUser.employee_id);
+  if (!list.length) { wrap.innerHTML = `<div class="empty-state">신청한 예약이 없습니다.</div>`; return; }
+  const condos = api.getCondos();
+  wrap.innerHTML = "";
+  list.forEach(r => {
+    const condo = condos.find(c => c.id === r.condo_id);
+    const cancelable = ["접수 신청중", "신청 확인중"].includes(r.status);
+    const el = document.createElement("div");
+    el.className = "reqcard";
+    el.innerHTML = `
+      <div class="row1">
+        <div>
+          <h4>${condo ? condo.name : "-"}</h4>
+          <div class="meta">${r.checkin_date} ~ ${r.checkout_date} · ${r.guests}명${r.note ? " · " + r.note : ""}</div>
+        </div>
+        ${badge(r.status)}
+      </div>
+      ${r.status === "반려" && r.reject_reason ? `<div class="reject-reason">반려 사유: ${r.reject_reason}</div>` : ""}
+      ${cancelable ? `<div class="actions"><button class="btn ghost sm" data-cancel="${r.id}">신청 취소</button></div>` : ""}`;
+    wrap.appendChild(el);
+  });
+  wrap.querySelectorAll("[data-cancel]").forEach(b => {
+    b.addEventListener("click", () => {
+      if (api.cancelReservation(b.dataset.cancel, currentUser.employee_id)) {
+        toast("예약 신청을 취소했습니다."); renderMyRes();
+      }
+    });
+  });
+}
+
+/* ---------- Admin: 콘도 관리 ---------- */
+let pendingImageData = ""; // 업로드한 이미지의 PNG data URL (세션 내 미리보기/저장용)
+
+function slugify(str) {
+  return (str || "condo").toString().trim().replace(/[^\w가-힣]+/g, "_").replace(/^_+|_+$/g, "") || "condo";
+}
+
+function fileToPngDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext("2d").drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function downloadDataUrl(dataUrl, filename) {
+  const a = document.createElement("a");
+  a.href = dataUrl; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+function renderImagePreview(src) {
+  $("cf-image-preview").innerHTML = src
+    ? `<img src="${src}" style="max-width:100%;max-height:120px;object-fit:contain;border-radius:8px;border:1px solid var(--line);" />`
+    : "";
+}
+
+$("cf-image-file").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const dataUrl = await fileToPngDataUrl(file);
+    pendingImageData = dataUrl;
+    const filename = `${editingCondoId || slugify($("cf-name").value)}_${Date.now()}.png`;
+    $("cf-image").value = `image/${filename}`;
+    downloadDataUrl(dataUrl, filename);
+    renderImagePreview(dataUrl);
+    toast(`PNG로 변환되어 다운로드되었습니다. 다운로드한 파일을 image 폴더에 'image/${filename}' 경로로 저장해주세요.`);
+  } catch (err) {
+    $("condo-form-err").textContent = "이미지 변환에 실패했습니다. 다른 파일을 시도해주세요.";
+  }
+});
+
+function renderCondoMgmt() {
+  const list = api.getCondos();
+  $("condo-count").textContent = list.length;
+  const wrap = $("condo-mgmt-list");
+  wrap.innerHTML = "";
+  list.forEach(c => {
+    const el = document.createElement("div");
+    el.className = "reqcard";
+    el.innerHTML = `
+      <div class="row1">
+        <div>
+          <h4>${c.icon || "🏨"} ${c.name}</h4>
+          <div class="meta">📍 ${c.region || "-"}${c.facilities ? " · 부대시설: " + c.facilities : ""}</div>
+          ${c.notes ? `<div class="meta">ℹ️ ${c.notes}</div>` : ""}
+        </div>
+      </div>
+      <div class="actions"><button class="btn ghost sm" data-edit-condo="${c.id}">수정</button></div>`;
+    wrap.appendChild(el);
+  });
+  wrap.querySelectorAll("[data-edit-condo]").forEach(b =>
+    b.addEventListener("click", () => loadCondoToForm(b.dataset.editCondo)));
+}
+
+function loadCondoToForm(id) {
+  const c = api.getCondos().find(x => x.id === id);
+  if (!c) return;
+  editingCondoId = id;
+  $("condo-form-title").textContent = "콘도 수정: " + c.name;
+  $("cf-name").value = c.name || "";
+  $("cf-region").value = c.region || "";
+  $("cf-desc").value = c.description || "";
+  $("cf-icon").value = c.icon || "";
+  $("cf-color").value = (c.color && /^#/.test(c.color)) ? c.color : "#e7f5ff";
+  $("cf-image").value = c.image_url || "";
+  $("cf-facilities").value = c.facilities || "";
+  $("cf-notes").value = c.notes || "";
+  pendingImageData = c.image_data || "";
+  $("cf-image-file").value = "";
+  renderImagePreview(pendingImageData || c.image_url || "");
+  $("condo-new").style.display = "inline-block";
+  $("condo-form-err").textContent = "";
+}
+
+function resetCondoForm() {
+  editingCondoId = null;
+  $("condo-form-title").textContent = "새 콘도 추가";
+  ["cf-name", "cf-region", "cf-desc", "cf-icon", "cf-image", "cf-facilities", "cf-notes"].forEach(id => $(id).value = "");
+  $("cf-color").value = "#e7f5ff";
+  pendingImageData = "";
+  $("cf-image-file").value = "";
+  renderImagePreview("");
+  $("condo-new").style.display = "none";
+  $("condo-form-err").textContent = "";
+}
+
+$("condo-new").addEventListener("click", resetCondoForm);
+$("condo-save").addEventListener("click", () => {
+  const name = $("cf-name").value.trim();
+  const region = $("cf-region").value.trim();
+  if (!name || !region) { $("condo-form-err").textContent = "콘도명과 위치는 필수입니다."; return; }
+  const data = {
+    name, region,
+    description: $("cf-desc").value.trim(),
+    icon: $("cf-icon").value.trim() || "🏨",
+    color: $("cf-color").value,
+    image_url: $("cf-image").value.trim(),
+    image_data: pendingImageData,
+    facilities: $("cf-facilities").value.trim(),
+    notes: $("cf-notes").value.trim(),
+  };
+  if (editingCondoId) { api.updateCondo(editingCondoId, data); toast("콘도 정보를 수정했습니다."); }
+  else { api.addCondo(data); toast("콘도를 추가했습니다."); }
+  resetCondoForm();
+  renderCondoMgmt();
+});
+
+/* ---------- Admin: 신청 처리 (4개 상태 버튼 항상 노출) ---------- */
+function renderAdmin() {
+  const list = api.getAllReservations();
+  const counts = { "신청 확인중": 0, "접수 신청중": 0, "승인": 0, "반려": 0 };
+  list.forEach(r => { counts[r.status] = (counts[r.status] || 0) + 1; });
+  $("status-summary").innerHTML = Object.entries(counts).map(([k, v]) => `
+    <div class="scard"><div class="num">${v}</div><div class="lbl">${k}</div></div>`).join("");
+
+  const condos = api.getCondos();
+  const wrap = $("admin-list");
+  if (!list.length) { wrap.innerHTML = `<div class="empty-state">신청 내역이 없습니다.</div>`; return; }
+  wrap.innerHTML = "";
+  list.forEach(r => {
+    const condo = condos.find(c => c.id === r.condo_id);
+    const el = document.createElement("div");
+    el.className = "reqcard";
+    const statusBtns = [
+      { k: "신청 확인중", cls: "warn" },
+      { k: "접수 신청중", cls: "ghost" },
+      { k: "승인", cls: "ok" },
+      { k: "반려", cls: "danger" },
+    ].map(s => {
+      const isActive = r.status === s.k;
+      return `<button class="btn ${s.cls} sm${isActive ? " status-active" : ""}" data-set-status="${s.k}" data-id="${r.id}">${s.k}${isActive ? " ✓" : ""}</button>`;
+    }).join("");
+    el.innerHTML = `
+      <div class="row1">
+        <div>
+          <h4>${condo ? condo.name : "-"} <span class="muted" style="font-weight:400;">· ${r.checkin_date} ~ ${r.checkout_date}</span></h4>
+          <div class="meta">${r.employee_name} · ${r.employee_dept} · ${r.employee_email}${r.employee_phone ? " · " + r.employee_phone : ""} · ${r.guests}명${r.note ? " · " + r.note : ""}</div>
+        </div>
+        ${badge(r.status)}
+      </div>
+      ${r.status === "반려" && r.reject_reason ? `<div class="reject-reason">반려 사유: ${r.reject_reason}</div>` : ""}
+      <div class="actions">${statusBtns}</div>`;
+    wrap.appendChild(el);
+  });
+
+  wrap.querySelectorAll("[data-set-status]").forEach(b => {
+    b.addEventListener("click", async () => {
+      const id = b.dataset.id;
+      const target = b.dataset.setStatus;
+      if (target === "승인") {
+        const res = await api.approve(id, currentUser.name);
+        if (!res.ok && res.reason === "conflict") { toast(`이미 마감된 날짜(${res.date})가 있어 승인할 수 없습니다.`); renderAdmin(); return; }
+        toast(res.alreadyApproved ? "이미 승인된 신청입니다." : `승인 완료 · ${res.email} 으로 승인 안내 메일을 발송했습니다.`);
+        renderAdmin();
+      } else if (target === "반려") {
+        pendingRejectId = id; $("reject-reason").value = ""; $("reject-overlay").classList.add("show");
+      } else {
+        api.setStatus(id, target);
+        toast(`상태를 '${target}'(으)로 변경했습니다.`);
+        renderAdmin();
+      }
+    });
+  });
+}
+
+/* ---------- Admin: 전체 일정 (캘린더 보기 / 리스트 보기) ---------- */
+function updateScheduleModeUI() {
+  $("sched-mode-cal").classList.toggle("active", scheduleMode === "calendar");
+  $("sched-mode-list").classList.toggle("active", scheduleMode === "list");
+  $("sched-calendar-wrap").classList.toggle("hidden", scheduleMode !== "calendar");
+  $("sched-list-wrap").classList.toggle("hidden", scheduleMode !== "list");
+}
+$("sched-mode-cal").addEventListener("click", () => { scheduleMode = "calendar"; updateScheduleModeUI(); renderScheduleCalendar(); });
+$("sched-mode-list").addEventListener("click", () => { scheduleMode = "list"; updateScheduleModeUI(); renderScheduleList(); });
+
+function renderSchedule() {
+  updateScheduleModeUI();
+  if (scheduleMode === "calendar") renderScheduleCalendar(); else renderScheduleList();
+}
+
+$("sched-cal-prev").addEventListener("click", () => { schedCalMonth--; if (schedCalMonth < 0) { schedCalMonth = 11; schedCalYear--; } renderScheduleCalendar(); });
+$("sched-cal-next").addEventListener("click", () => { schedCalMonth++; if (schedCalMonth > 11) { schedCalMonth = 0; schedCalYear++; } renderScheduleCalendar(); });
+
+function renderScheduleCalendar() {
+  if (schedCalYear === null) { schedCalYear = 2026; schedCalMonth = 6; }
+  const dows = ["일", "월", "화", "수", "목", "금", "토"];
+  $("sched-cal-dow").innerHTML = dows.map(d => `<div class="cal-dow">${d}</div>`).join("");
+  $("sched-cal-title").textContent = `${schedCalYear}년 ${schedCalMonth + 1}월`;
+
+  const condos = api.getCondos();
+  const cmap = { "접수 신청중": "recv", "신청 확인중": "review", "승인": "approved", "반려": "rejected" };
+  const all = api.getAllReservations().slice().sort((a, b) => reservationSeqNum(a) - reservationSeqNum(b)); // 먼저 신청한 순서
+
+  const byDate = {};
+  all.forEach(r => {
+    dateRange(r.checkin_date, r.checkout_date).forEach(d => {
+      (byDate[d] = byDate[d] || []).push(r);
+    });
+  });
+
+  const first = new Date(schedCalYear, schedCalMonth, 1).getDay();
+  const days = new Date(schedCalYear, schedCalMonth + 1, 0).getDate();
+  const grid = $("sched-cal-grid");
+  grid.innerHTML = "";
+  for (let i = 0; i < first; i++) grid.insertAdjacentHTML("beforeend", `<div class="sched-cal-cell empty"></div>`);
+  for (let d = 1; d <= days; d++) {
+    const ds = ymd(schedCalYear, schedCalMonth, d);
+    const entries = byDate[ds] || [];
+    const html = entries.map(r => {
+      const condo = condos.find(c => c.id === r.condo_id);
+      return `<div class="sched-entry ${cmap[r.status] || ""}">${r.employee_name} · ${condo ? condo.name : "-"} · ${r.status}</div>`;
+    }).join("");
+    grid.insertAdjacentHTML("beforeend", `<div class="sched-cal-cell"><div class="daynum">${d}</div>${html}</div>`);
+  }
+}
+
+function renderScheduleList() {
+  const condos = api.getCondos();
+  const csel = $("sched-condo");
+  if (csel.options.length <= 1) {
+    condos.forEach(c => { const o = document.createElement("option"); o.value = c.id; o.textContent = c.name; csel.appendChild(o); });
+  }
+  const condoFilter = $("sched-condo").value;
+  const statusFilter = $("sched-status").value;
+
+  let list = api.getAllReservations()
+    .filter(r => !condoFilter || r.condo_id === condoFilter)
+    .filter(r => !statusFilter || r.status === statusFilter)
+    .sort((a, b) => a.checkin_date.localeCompare(b.checkin_date));
+
+  const body = $("sched-body");
+  if (!list.length) {
+    body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px;">해당 조건의 예약이 없습니다.</td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(r => {
+    const condo = condos.find(c => c.id === r.condo_id);
+    return `<tr>
+      <td>${r.employee_name || "-"}</td>
+      <td>${r.employee_dept || "-"}</td>
+      <td>${condo ? condo.name : "-"}</td>
+      <td>${r.checkin_date} ~ ${r.checkout_date}</td>
+      <td>${r.guests ? r.guests + "명" : "-"}</td>
+      <td>${badge(r.status)}</td>
+      <td>${r.employee_phone ? r.employee_phone : "-"}</td>
+    </tr>`;
+  }).join("");
+}
+$("sched-condo").addEventListener("change", renderScheduleList);
+$("sched-status").addEventListener("change", renderScheduleList);
+
+/* ---------- Employee: 문의 사항 접수 ---------- */
+$("inq-send").addEventListener("click", async () => {
+  const title = $("inq-title").value.trim();
+  const message = $("inq-message").value.trim();
+  if (!title || !message) { $("inq-err").textContent = "제목과 문의사항을 모두 입력하세요."; return; }
+  $("inq-err").textContent = "";
+  await api.sendInquiry({
+    title, message,
+    employee_id: currentUser.employee_id, employee_name: currentUser.name, employee_dept: currentUser.dept,
+  });
+  toast("문의가 담당자 이메일로 발송되었습니다.");
+  $("inq-title").value = "";
+  $("inq-message").value = "";
+});
+
+/* ---------- Reject modal ---------- */
+$("reject-cancel").addEventListener("click", () => $("reject-overlay").classList.remove("show"));
+$("reject-overlay").addEventListener("click", (e) => { if (e.target.id === "reject-overlay") $("reject-overlay").classList.remove("show"); });
+$("reject-confirm").addEventListener("click", () => {
+  const reason = $("reject-reason").value.trim();
+  if (!reason) { toast("반려 사유를 입력하세요."); return; }
+  api.reject(pendingRejectId, reason);
+  $("reject-overlay").classList.remove("show");
+  toast("반려 처리되었습니다.");
+  renderAdmin();
+});
+</script>
+</body>
+</html>
