@@ -38,6 +38,12 @@ while ($listener.IsListening) {
       [System.IO.File]::WriteAllBytes($destPath, $ms.ToArray())
       $ms.Dispose()
 
+      # 콘도명==파일명 자동 매칭 기능(index10.html부터)이 참조하는 목록을 최신 상태로 갱신
+      $imageFiles = Get-ChildItem -Path $imageDir -File | Where-Object { $_.Name -ne "README.txt" -and $_.Name -ne "manifest.json" } | ForEach-Object { $_.Name }
+      $manifestJson = ($imageFiles | ConvertTo-Json)
+      if ($imageFiles.Count -eq 1) { $manifestJson = "[$manifestJson]" }  # 파일이 1개면 배열이 아닌 문자열로 변환되는 ConvertTo-Json 특성 보정
+      [System.IO.File]::WriteAllText((Join-Path $imageDir "manifest.json"), $manifestJson, [System.Text.Encoding]::UTF8)
+
       $resBody = [System.Text.Encoding]::UTF8.GetBytes("{`"ok`":true,`"path`":`"image/$name`"}")
       $res.ContentType = "application/json"
       $res.Headers.Add("Access-Control-Allow-Origin", "*")
@@ -45,7 +51,7 @@ while ($listener.IsListening) {
       $res.OutputStream.Write($resBody, 0, $resBody.Length)
     }
     else {
-      if ($path -eq "/") { $path = "/index9.html" }
+      if ($path -eq "/") { $path = "/index10.html" }
       if ($path -like "/image/*") {
         $filePath = Join-Path $PSScriptRoot ($path.TrimStart("/"))
       } else {
