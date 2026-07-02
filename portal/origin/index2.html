@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>삼호개발 복지포털</title>
+<style>
+  :root{ --teal:#15bfa6; --blue:#3b7ad9; --primary:#2f6fd1; --menu:#6b6c8c; --bg:#eef2f7; --line:#e3e8ef; --ink:#3a4252; --muted:#8a93a3; }
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif; background:var(--bg); color:#2b3445; line-height:1.5; }
+  .icon{ width:22px; height:22px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .chev{ fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* TOP BAND */
+  .topband{ background:linear-gradient(90deg,#15bfa6 0%,#2f97ce 55%,#3b7ad9 100%); color:#fff; height:44px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; font-size:13px; }
+  .tb-left{ display:flex; align-items:center; gap:16px; font-weight:600; }
+  .tb-right{ display:flex; align-items:center; gap:14px; font-size:12.5px; opacity:.96; }
+  .tb-link{ display:flex; align-items:center; gap:5px; color:#fff; text-decoration:none; cursor:pointer; }
+  .tb-link svg{ width:15px; height:15px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .tb-link:hover{ opacity:.8; }
+
+  /* NAV BAND */
+  .navband{ background:#fff; border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 18px; height:58px; gap:18px; position:sticky; top:0; z-index:30; }
+  .brand{ display:flex; align-items:center; gap:9px; flex-shrink:0; cursor:pointer; }
+  .brand svg{ width:30px; height:30px; }
+  .brand .bt{ font-weight:700; color:var(--ink); font-size:17px; letter-spacing:-.3px; }
+  .brand .bt span{ color:var(--muted); font-weight:600; font-size:15px; margin-left:2px; }
+  .menu{ display:flex; align-items:center; gap:4px; flex:1; overflow-x:auto; scrollbar-width:none; }
+  .menu::-webkit-scrollbar{ display:none; }
+  .menu button{ border:none; background:none; font-family:inherit; font-size:15px; font-weight:600; color:var(--menu); padding:8px 15px; border-radius:7px; cursor:pointer; white-space:nowrap; transition:.15s; }
+  .menu button:hover{ background:#f1f4f9; color:var(--primary); }
+  .menu button.active{ background:#e9f1fc; color:var(--primary); }
+
+  /* SEARCH ROW */
+  .searchrow{ background:#fff; border-bottom:1px solid var(--line); padding:9px 18px; display:flex; justify-content:flex-end; }
+  .searchbox{ position:relative; width:100%; max-width:320px; }
+  .searchbox svg.s{ position:absolute; left:13px; top:50%; transform:translateY(-50%); width:16px; height:16px; stroke:#94a3b8; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .searchbox input{ width:100%; padding:9px 36px 9px 38px; border-radius:8px; border:1px solid #d8dee7; background:#f8fafc; font-size:13.5px; font-family:inherit; }
+  .searchbox input:focus{ outline:none; border-color:var(--primary); background:#fff; box-shadow:0 0 0 3px rgba(47,111,209,.12); }
+  .clearbtn{ position:absolute; right:10px; top:50%; transform:translateY(-50%); border:none; background:none; cursor:pointer; padding:3px; border-radius:50%; color:#94a3b8; display:none; }
+  .clearbtn:hover{ background:#eef1f5; }
+
+  .wrap{ max-width:1000px; margin:0 auto; padding:22px 18px 64px; }
+
+  /* PANEL HEADERS */
+  .ph{ display:flex; align-items:center; gap:8px; margin:28px 0 14px; flex-wrap:wrap; }
+  .ph:first-child{ margin-top:4px; }
+  .ph-bar{ width:4px; height:17px; background:var(--primary); border-radius:2px; display:inline-block; }
+  .ph h2{ font-size:17px; font-weight:700; color:var(--ink); }
+  .ph p{ font-size:13px; color:var(--muted); }
+
+  /* HOME quick cards */
+  .qgrid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  @media(min-width:720px){ .qgrid{ grid-template-columns:repeat(4,1fr); } }
+  .qcard{ display:flex; align-items:center; gap:12px; text-align:left; background:#fff; border:1px solid var(--line); border-radius:8px; padding:16px; cursor:pointer; font-family:inherit; transition:.15s; }
+  a.qcard{ text-decoration:none; color:inherit; }
+  .qcard:hover{ border-color:#c7d3e3; box-shadow:0 3px 10px rgba(47,111,209,.1); }
+  .qic{ width:42px; height:42px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+  .qic .icon{ width:22px; height:22px; }
+  .qtx h3{ font-size:15px; font-weight:700; color:var(--ink); }
+  .qtx p{ font-size:12px; color:var(--muted); margin-top:1px; }
+
+  /* PANELS */
+  .grid2{ display:grid; gap:14px; margin-top:6px; }
+  @media(min-width:720px){ .grid2{ grid-template-columns:1fr 1fr; } }
+  .panel{ background:#fff; border:1px solid var(--line); border-radius:8px; }
+  .panel-head{ display:flex; align-items:center; gap:8px; padding:13px 16px; border-bottom:1px solid #eef1f5; }
+  .panel-head h3{ font-size:15px; font-weight:700; color:var(--ink); }
+  .panel-body{ padding:16px; }
+  .dot-list{ list-style:none; }
+  .dot-list li{ position:relative; padding-left:15px; font-size:14px; color:#4b5563; margin-bottom:9px; }
+  .dot-list li:last-child{ margin-bottom:0; }
+  .dot-list li::before{ content:""; position:absolute; left:0; top:8px; width:5px; height:5px; border-radius:50%; background:var(--primary); }
+  .kv{ display:flex; justify-content:space-between; align-items:center; font-size:14px; padding:9px 0; border-bottom:1px dashed #eceff3; }
+  .kv:first-child{ padding-top:0; }
+  .kv:last-child{ border-bottom:none; padding-bottom:0; }
+  .kv span{ color:#64748b; }
+  .kv b{ color:#3a4252; font-weight:600; }
+  a.tel{ color:var(--primary); text-decoration:none; font-weight:600; }
+
+  /* benefit cards */
+  .b-grid{ display:grid; gap:12px; }
+  @media(min-width:640px){ .b-grid{ grid-template-columns:1fr 1fr; } }
+  .b-card{ text-align:left; background:#fff; border-radius:8px; border:1px solid var(--line); padding:18px; width:100%; font-family:inherit; transition:.15s; }
+  .b-card.clickable{ cursor:pointer; }
+  .b-card.clickable:hover{ border-color:#c7d3e3; box-shadow:0 3px 10px rgba(47,111,209,.1); }
+  .b-ic{ width:42px; height:42px; border-radius:9px; background:#f4f7fb; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+  .b-card h3{ font-weight:700; color:var(--ink); margin-bottom:4px; display:flex; align-items:center; gap:4px; font-size:15px; }
+  .b-card h3 .chev{ width:15px; height:15px; stroke:#cbd5e1; }
+  .b-card p{ font-size:13.5px; color:#64748b; line-height:1.55; }
+
+  /* leave list */
+  .leave-item{ width:100%; text-align:left; background:#fff; border-radius:8px; border:1px solid var(--line); padding:18px; cursor:pointer; display:flex; align-items:center; gap:15px; font-family:inherit; transition:.15s; margin-bottom:12px; }
+  .leave-item:hover{ border-color:#c7d3e3; box-shadow:0 3px 10px rgba(47,111,209,.1); }
+  .leave-ic{ width:42px; height:42px; border-radius:9px; background:#ecfdf5; display:flex; align-items:center; justify-content:center; color:#059669; flex-shrink:0; }
+  .leave-item .body{ flex:1; min-width:0; }
+  .leave-item h3{ font-weight:700; color:var(--ink); font-size:15px; }
+  .leave-item p{ font-size:13.5px; color:#64748b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .leave-item .chev{ width:20px; height:20px; stroke:#cbd5e1; flex-shrink:0; }
+
+  .green-box{ background:#f0fdf8; border:1px solid #c8efdd; border-left:4px solid #10b981; border-radius:8px; padding:18px; margin-bottom:22px; }
+  .green-box h3{ font-weight:700; color:#065f46; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .green-box h3 .icon{ width:18px; height:18px; }
+  .green-box .line{ font-size:14px; color:rgba(6,78,59,.85); margin-bottom:6px; }
+  .green-box .sub{ padding-left:12px; color:rgba(4,120,87,.7); }
+
+  /* tables */
+  .tbl-wrap{ background:#fff; border-radius:8px; border:1px solid var(--line); overflow:hidden; }
+  table{ width:100%; border-collapse:collapse; font-size:14px; }
+  thead tr{ background:#f3f6fb; }
+  th{ font-size:12.5px; font-weight:600; color:#5b6675; padding:11px 16px; text-align:right; }
+  th:first-child{ text-align:left; }
+  td{ padding:11px 16px; text-align:right; color:#3a4252; border-top:1px solid #f1f4f8; }
+  td:first-child{ text-align:left; font-weight:600; }
+  .tbl-note{ font-size:12px; color:var(--muted); padding:11px 16px; background:#fafbfc; border-top:1px solid #f1f4f8; }
+
+  .detail-card{ background:#fff; border-radius:8px; border:1px solid var(--line); padding:18px; font-size:14px; color:#4b5563; }
+  .detail-card p{ margin-bottom:8px; }
+  .detail-card p:last-child{ margin-bottom:0; }
+  .amber-box{ background:#fffbeb; border:1px solid #fde9b8; border-radius:8px; padding:12px; margin:6px 0; }
+  .amber-box .h{ font-weight:700; color:#92400e; margin-bottom:4px; }
+  .muted{ font-size:12px; color:var(--muted); }
+
+  .addr-card{ background:#fff; border-radius:8px; border:1px solid var(--line); padding:18px; margin-bottom:12px; }
+  .addr-card h3{ font-weight:700; color:var(--ink); margin-bottom:9px; }
+  .addr-card .ar{ display:flex; gap:8px; font-size:14px; color:#4b5563; margin-bottom:6px; }
+  .addr-card .ar svg{ width:16px; height:16px; stroke:#94a3b8; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; margin-top:2px; }
+
+  .value-card{ background:#fff; border-radius:8px; border:1px solid var(--line); padding:18px; display:flex; gap:15px; align-items:center; margin-bottom:12px; }
+  .value-num{ width:38px; height:38px; border-radius:50%; background:#ede9fe; color:#7c3aed; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+  .value-card h4{ font-weight:700; color:var(--ink); }
+  .value-card p{ font-size:14px; color:#64748b; }
+  .footer-note{ text-align:center; font-size:12px; color:var(--muted); margin-top:24px; }
+
+  /* search results */
+  .sr-count{ font-size:14px; color:var(--muted); margin:4px 0 12px; }
+  .sr-item{ width:100%; text-align:left; background:#fff; border-radius:8px; border:1px solid var(--line); padding:15px; cursor:pointer; display:flex; gap:12px; align-items:flex-start; font-family:inherit; transition:.15s; margin-bottom:8px; }
+  .sr-item:hover{ border-color:#c7d3e3; box-shadow:0 2px 8px rgba(47,111,209,.08); }
+  .sr-ic{ width:36px; height:36px; border-radius:9px; background:#eef4fc; display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0; }
+  .sr-ic .icon{ width:18px; height:18px; }
+  .sr-item .h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .sr-item .h .nm{ font-weight:700; color:var(--ink); font-size:14px; }
+  .sr-item .h .tag{ font-size:11px; padding:2px 7px; border-radius:4px; background:#eef2f7; color:#64748b; }
+  .sr-item .d{ font-size:12px; color:#64748b; margin-top:2px; }
+  .empty{ text-align:center; padding:48px 0; color:var(--muted); font-size:14px; }
+
+  /* banner */
+  .banner{ position:relative; height:90px; border-radius:8px; overflow:hidden; margin-bottom:22px; display:flex; align-items:center; padding:0 20px; }
+  .banner-cap{ color:#fff; font-size:16px; font-weight:700; line-height:1.45; max-width:54%; position:relative; z-index:2; text-shadow:0 1px 2px rgba(0,0,0,.12); }
+  .banner-art{ position:absolute; right:6px; top:50%; transform:translateY(-50%); display:flex; align-items:center; opacity:.97; }
+
+  /* modal */
+  .overlay{ position:fixed; inset:0; background:rgba(15,23,42,.45); display:flex; align-items:flex-end; justify-content:center; z-index:50; }
+  @media(min-width:640px){ .overlay{ align-items:center; padding:16px; } }
+  .modal{ background:#fff; border-radius:16px 16px 0 0; width:100%; max-height:85vh; overflow-y:auto; }
+  @media(min-width:640px){ .modal{ border-radius:12px; max-width:520px; } }
+  .modal-head{ position:sticky; top:0; background:#fff; padding:20px 22px 15px; border-bottom:1px solid #eef1f5; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .modal-head .left{ display:flex; align-items:center; gap:12px; }
+  .modal-ic{ width:40px; height:40px; border-radius:9px; background:#eef4fc; display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0; }
+  .modal-ic .icon{ width:20px; height:20px; }
+  .modal-head h3{ font-weight:700; font-size:18px; color:var(--ink); }
+  .modal-close{ padding:8px; margin-right:-8px; border:none; background:none; cursor:pointer; border-radius:8px; color:#94a3b8; }
+  .modal-close:hover{ background:#f1f5f9; }
+  .modal-body{ padding:18px 22px; }
+  .modal-body .pl{ font-size:14px; color:#4b5563; white-space:pre-line; line-height:1.7; }
+  .modal-body .leave-info{ font-size:14px; color:#64748b; margin-bottom:8px; display:flex; gap:8px; }
+  .modal-body .leave-info .dot{ color:#10b981; }
+  .modal-body h4{ font-weight:700; color:var(--ink); margin:20px 0 12px; }
+  .step{ display:flex; gap:12px; margin-bottom:12px; }
+  .step .n{ width:24px; height:24px; border-radius:50%; background:#10b981; color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+  .step p{ font-size:14px; color:#4b5563; line-height:1.6; }
+  .guide-thumb{ width:100%; max-width:330px; border-radius:8px; border:1px solid #e2e8f0; cursor:zoom-in; display:block; box-shadow:0 2px 8px rgba(0,0,0,.12); transition:transform .15s; }
+  .guide-thumb:hover{ transform:scale(1.02); }
+  .img-miss{ display:none; padding:24px 16px; text-align:center; font-size:13px; color:var(--muted); background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; max-width:330px; line-height:1.6; }
+  .img-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.88); display:flex; align-items:center; justify-content:center; z-index:100; cursor:zoom-out; padding:20px; }
+  .img-overlay img{ max-width:100%; max-height:100%; border-radius:8px; box-shadow:0 8px 30px rgba(0,0,0,.5); }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="topband">
+  <div class="tb-left">
+    <a class="tb-link" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>처음으로</a>
+    <a class="tb-link" href="https://erp.samhodev.co.kr/" target="_blank"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>ERP</a>
+  </div>
+  <div class="tb-right"><span id="today"></span></div>
+</div>
+
+<div class="navband">
+  <div class="brand" onclick="go('home')">
+    <svg viewBox="0 0 40 40"><path d="M20 6 A14 14 0 0 1 20 34" stroke="#2f7fd1" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M20 34 A14 14 0 0 1 20 6" stroke="#34c75e" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
+    <div class="bt">Samho <span>복지포털</span></div>
+  </div>
+  <nav class="menu">
+    <button id="m-home" onclick="go('home')">홈</button>
+    <button id="m-company" onclick="go('company')">회사정보</button>
+    <button id="m-benefits" onclick="go('benefits')">복지제도</button>
+    <button id="m-allowance" onclick="go('allowance')">지원금</button>
+    <button id="m-leave" onclick="go('leave')">휴가제도</button>
+  </nav>
+</div>
+
+<div class="searchrow">
+  <div class="searchbox">
+    <svg class="s" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input id="search" type="text" placeholder="연차, 이사비, 콘도, 건강검진 검색" autocomplete="off">
+    <button class="clearbtn" id="clearBtn"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+</div>
+
+<div class="wrap"><div id="content"></div></div>
+<div id="modalRoot"></div>
+
+<script>
+const I = {
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+  car:'<path d="M19 17h2l-1.5-6.5a2 2 0 0 0-2-1.5h-9a2 2 0 0 0-2 1.5L3 17h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/>',
+  gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+  heart:'<path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z"/>',
+  utensils:'<path d="M3 2v7c0 1.1.9 2 2 2h0a2 2 0 0 0 2-2V2M5 2v20M21 15V2a5 5 0 0 0-3 5v6c0 1.1.9 2 3 2Z"/>',
+  steth:'<path d="M4 2v6a4 4 0 0 0 8 0V2M6 2v0M10 2v0M8 14a5 5 0 0 0 5 5 4 4 0 0 0 4-4v-1"/><circle cx="20" cy="10" r="2"/>',
+  bed:'<path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20"/><path d="M6 8v4"/>',
+  shirt:'<path d="M20.4 14.5 16 10V4l-2-1-2 2-2-2-2 1v6l-4.4 4.5 2.8 2.8L8 16v5h8v-5l1.6 1.3z"/>',
+  coins:'<circle cx="8" cy="8" r="6"/><path d="M18.1 9.9a6 6 0 1 1-7.9 7.9"/><path d="M7 6h1v4M16.7 14h.3"/>',
+  award:'<circle cx="12" cy="8" r="6"/><path d="M8.2 13.9 7 22l5-3 5 3-1.2-8.1"/>',
+  star:'<path d="m12 2 3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>',
+  medal:'<path d="M7.2 3 4 9l8 13 8-13-3.2-6"/><path d="M11 3 8 9l4 7 4-7-3-6"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+  book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/>',
+  building:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
+  banknote:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+  truck:'<path d="M14 18V6a1 1 0 0 0-1-1H2v12M14 9h4l4 4v5h-2"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
+  smartphone:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+  mappin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  chevR:'<path d="m9 18 6-6-6-6"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+};
+function svg(name, cls){ return '<svg class="'+(cls||'icon')+'" viewBox="0 0 24 24">'+I[name]+'</svg>'; }
+
+const categories = [
+  { id:'company', label:'회사정보', desc:'주소 · 연락처', icon:'building', color:'#8b5cf6' },
+  { id:'benefits', label:'복지제도', desc:'기본 · 추가 · 교육', icon:'gift', color:'#3b82f6' },
+  { id:'allowance', label:'지원금', desc:'차량 · 유류 · 이사비', icon:'banknote', color:'#f59e0b' },
+  { id:'leave', label:'휴가제도', desc:'연차 · 경조 · 병가', icon:'calendar', color:'#10b981' },
+];
+
+const basicBenefits = [
+  { icon:'calendar', t:'현장 월 8일 휴무', d:'현장 근무 직원의 충분한 휴식을 위해 월 8일의 휴무를 제공합니다.' },
+  { icon:'home', t:'콘도 지원', d:'전국 20개 이상의 콘도를 무료 또는 회원가로 이용할 수 있습니다.', more:'삼호개발 정직원이면 누구나 이용 가능합니다. 용평 베르데힐, 풍림 아이원리조트, 켄싱턴리조트, 롯데리조트 등을 무상 혹은 할인가로 이용할 수 있습니다.\n\n문의: 비서실 02-2046-7700~7701' },
+  { icon:'calendar', t:'연차휴가 제도', d:'모든 직원이 원하는 시기에 자유롭게 연차휴가를 사용할 수 있습니다.' },
+  { icon:'heart', t:'경조 지원', d:'경조사 발생 시 경조금, 경조휴가, 상조용품을 지원합니다.' },
+  { icon:'car', t:'차량유지비 · 유류비', d:'개인 차량을 업무에 사용하는 직원에게 매달 차량보조금과 유류비를 지원합니다.' },
+  { icon:'smartphone', t:'휴대전화 요금 지원', d:'업무에 사용하는 휴대전화 통신 요금을 직급에 따라 지원합니다.' },
+  { icon:'truck', t:'이사비용 지원', d:'현장 발령으로 다른 행정구역 이사 시 이사비용을 지원합니다.' },
+  { icon:'bed', t:'현장 직원 숙소 제공', d:'원거리 현장 근무자에게 1인 1실 숙소를 제공합니다.' },
+  { icon:'shirt', t:'근무복 지급', d:'전 직원에게 상하반기 근무에 필요한 복장을 지급합니다.' },
+  { icon:'utensils', t:'중식 제공', d:'모든 직원에게 점심 식사를 무료로 제공합니다.' },
+  { icon:'steth', t:'종합건강검진 (연 1회)', d:'전 직원 대상 연 1회 종합건강검진을 실시하며, 공단 필수 항목 외 정밀검사 항목을 추가로 제공합니다.' },
+];
+const extraBenefits = [
+  { icon:'coins', t:'현장수당 지급', d:'현장 근무의 특수성을 고려하여 별도의 현장수당을 지급합니다.' },
+  { icon:'award', t:'자격면허 수당', d:'직무 관련 전문 자격증·면허 보유 직원에게 매월 수당을 지급합니다.' },
+  { icon:'star', t:'성과 중심 포상', d:'우수 성과 현장에는 상여금과 해외여행권을, 안전 모범 현장에는 상여금을 지급합니다.' },
+  { icon:'medal', t:'개인 포상', d:'모범사원에게 금메달을, 획기적인 아이디어 제안자에게 포상금을 지급합니다.' },
+  { icon:'award', t:'장기근속 포상', d:'10·20·30년 장기근속자에게 표창패와 금거북이를 수여합니다.' },
+];
+const education = [
+  { icon:'users', t:'전사원 한마음 교육', d:'매년 1월, 전 직원이 모여 3박 4일간 진행하는 합숙 교육입니다.', more:'재충전과 소통을 통해 유대감을 강화하는 시간입니다. 직무·안전 교육뿐 아니라 인문학, 문화예술 등 소양 교육과 명랑운동회, \'한마음의 밤\' 활동을 진행합니다. 신입사원은 입사 후 경험을 공유하는 발표 시간을 갖습니다.\n\n전 직원 참석을 원칙으로 하며, 참석이 어려울 경우 해당 현장 PM의 승인이 필요합니다.' },
+  { icon:'book', t:'직무 역량 강화', d:'공사·관리·공무 등 직종별 맞춤형 전문교육을 운영합니다.', more:'직종별 전문교육: 직종에 특화된 맞춤형 전문교육으로 역량 강화를 지원합니다.\n\n사내 강사 제도: 현직 임직원이 사내 강사로 참여해 실무 노하우를 전달합니다.\n\n신입사원 멘토링: 수습기간 3개월간 멘토로부터 1:1 맞춤 지도를 받습니다.' },
+];
+const leaveTypes = [
+  { icon:'calendar', t:'연차휴가', info:['매년 3월 1일에 새로 부여됩니다.','미사용 전년도분 연차는 당년도 5월 중 미사용연차 수당으로 지급됩니다.'], steps:['ERP 상단 \'일반\' → \'신청관리\' → \'신청서(연차,근태,제증명)\'에서 연차신청서 선택','\'입력\' 버튼으로 원하는 날짜 선택 후 \'저장\'','\'결재상신\' 버튼으로 그룹웨어 결재란 진입','결재선 설정 후 부서장(소장) 결재 득함','총무부에서 연차계 수신 후 최종 결재되면 제출 완료'], img:'annual-leave-guide.png' },
+  { icon:'clock', t:'반차휴가', info:['연차신청서에서 오전/오후 반차를 선택해 신청합니다.'], steps:['ERP 상단 \'일반\' → \'신청관리\' → \'신청서(연차,근태,제증명)\'에서 연차신청서 선택','\'입력\' 후 \'연차/반차구분\'에서 오전 또는 오후 반차 선택 후 저장','\'결재상신\' 버튼으로 그룹웨어 결재란 진입','결재선 설정 후 부서장(소장) 결재 득함','총무부 수신 후 최종 결재되면 제출 완료'] },
+  { icon:'heart', t:'경조휴가', info:['조부모에는 (할아버지)조모, (할머니)조부가 포함되며 외가도 동일하게 휴가와 경조금이 지급됩니다.','세부 일수·경조금은 별표1 규정에 따릅니다. 규정에 없는 경우 총무부로 문의하세요.'], steps:['ERP 상단 \'일반\' → \'신청관리\' → \'근태신청서_개인\' 진입','신청서 구분을 \'경조휴가\'로 선택 후 내용 기입','\'결재상신\' 버튼으로 그룹웨어 결재란 진입','결재선 설정 후 부서장(소장) 결재 득함','총무부 안내에 따라 추가 서류 제출'] },
+  { icon:'steth', t:'병가', info:['근태신청서에서 \'병가원\'으로 신청합니다.'], steps:['ERP 상단 \'일반\' → \'신청관리\' → \'근태신청서_개인\' 진입','신청서 구분을 \'병가원\'으로 선택 후 내용 기입','\'결재상신\' 버튼으로 그룹웨어 결재란 진입','결재선 설정 후 부서장(소장) 결재 득함','총무부 안내에 따라 추가 서류 제출'] },
+  { icon:'file', t:'휴직 / 육아휴직', info:['근태신청서에서 \'휴직원\'으로 신청합니다.'], steps:['ERP 상단 \'일반\' → \'신청관리\' → \'근태신청서_개인\' 진입','신청서 구분을 \'휴직원\'으로 선택 후 내용 기입','\'결재상신\' 버튼으로 그룹웨어 결재란 진입','결재선 설정 후 부서장(소장) 결재 득함','총무부 안내에 따라 추가 서류 제출'] },
+];
+const carTable = [['임원','200,000','200,000'],['부장','200,000','150,000'],['차장','200,000','150,000'],['과장','200,000','100,000'],['대리','200,000','100,000'],['주임·사원·촉탁직','200,000','100,000']];
+const phoneTable = [['임원','50,000','50,000'],['부장','50,000','30,000'],['차장','50,000','30,000'],['과장','40,000','20,000'],['대리','30,000','-'],['주임·사원·촉탁직','20,000','-']];
+
+const searchIndex = [];
+basicBenefits.forEach(b=>searchIndex.push({...b,cat:'복지제도',target:'benefits'}));
+extraBenefits.forEach(b=>searchIndex.push({...b,cat:'추가 복지',target:'benefits'}));
+education.forEach(b=>searchIndex.push({...b,cat:'교육',target:'benefits'}));
+leaveTypes.forEach(b=>searchIndex.push({t:b.t,d:b.info.join(' '),icon:b.icon,cat:'휴가제도',target:'leave'}));
+searchIndex.push({t:'차량유지비 · 교통보조금',d:'직급별 현장/본사 차량지원금',icon:'car',cat:'지원금',target:'allowance'});
+searchIndex.push({t:'유류비',d:'현장별 차량당 월 200ℓ(터널 150ℓ) 원칙',icon:'truck',cat:'지원금',target:'allowance'});
+searchIndex.push({t:'모바일폰 지원금',d:'직급별 현장/본사 통신비 지원',icon:'smartphone',cat:'지원금',target:'allowance'});
+searchIndex.push({t:'이사비 지원',d:'편도 750,000원 이내 실비. 제출서류: 주민등록등본, 이사비 영수증',icon:'truck',cat:'지원금',target:'allowance'});
+searchIndex.push({t:'상조용품 지원',d:'300인분 장례용품, 근조 화환·근조기',icon:'heart',cat:'지원금',target:'allowance'});
+
+let view='home', search='';
+const content=document.getElementById('content');
+const searchInput=document.getElementById('search');
+const clearBtn=document.getElementById('clearBtn');
+const modalRoot=document.getElementById('modalRoot');
+
+const _now=new Date();
+document.getElementById('today').textContent=_now.getFullYear()+'년 '+(_now.getMonth()+1)+'월 '+_now.getDate()+'일';
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setActiveMenu(v){ ['home','benefits','leave','allowance','company'].forEach(k=>{ var el=document.getElementById('m-'+k); if(el) el.classList.toggle('active', k===v); }); }
+
+function render(){
+  if(search.trim()){ setActiveMenu(''); renderSearch(); return; }
+  setActiveMenu(view);
+  if(view==='home') renderHome();
+  else if(view==='benefits') renderBenefits();
+  else if(view==='leave') renderLeave();
+  else if(view==='allowance') renderAllowance();
+  else if(view==='company') renderCompany();
+  window.scrollTo(0,0);
+}
+
+function section(t,s){ return '<div class="ph"><span class="ph-bar"></span><h2>'+t+'</h2>'+(s?'<p>'+s+'</p>':'')+'</div>'; }
+
+function sectionBanner(key){
+  const gift='<svg viewBox="0 0 140 90" style="width:150px;height:96px"><rect x="44" y="44" width="56" height="38" rx="4" fill="#fff"/><rect x="40" y="32" width="64" height="15" rx="4" fill="#fff"/><rect x="66" y="32" width="12" height="50" fill="#bfdbfe"/><ellipse cx="60" cy="30" rx="9" ry="7" fill="#fff"/><ellipse cx="84" cy="30" rx="9" ry="7" fill="#fff"/><circle cx="72" cy="31" r="4.5" fill="#bfdbfe"/><path d="M28 16l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff" opacity=".85"/><circle cx="116" cy="46" r="3" fill="#fff" opacity=".7"/><circle cx="26" cy="58" r="2.5" fill="#fff" opacity=".6"/></svg>';
+  const cal='<svg viewBox="0 0 140 90" style="width:150px;height:96px"><g stroke="#d1fae5" stroke-width="3" stroke-linecap="round"><path d="M110 9v7M126 30h7M119 17l5-5M119 43l5 5"/></g><circle cx="110" cy="30" r="13" fill="#fef9c3"/><rect x="28" y="34" width="58" height="48" rx="5" fill="#fff"/><rect x="28" y="34" width="58" height="14" rx="5" fill="#6ee7b7"/><rect x="40" y="28" width="5" height="12" rx="2" fill="#fff"/><rect x="69" y="28" width="5" height="12" rx="2" fill="#fff"/><path d="M42 62l7 7 14-14" stroke="#059669" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const coin='<svg viewBox="0 0 140 90" style="width:150px;height:96px"><rect x="84" y="38" width="44" height="27" rx="3" fill="#fff" opacity=".9" transform="rotate(-10 106 51)"/><rect x="34" y="52" width="44" height="16" fill="#fde68a"/><ellipse cx="56" cy="68" rx="22" ry="8" fill="#fde68a"/><ellipse cx="56" cy="52" rx="22" ry="8" fill="#fff"/><text x="56" y="58" font-size="16" font-weight="700" fill="#d97706" text-anchor="middle" font-family="-apple-system,sans-serif">₩</text></svg>';
+  const bld='<svg viewBox="0 0 140 90" style="width:150px;height:96px"><rect x="34" y="40" width="30" height="42" fill="#fff"/><rect x="68" y="24" width="34" height="58" fill="#fff"/><rect x="106" y="50" width="22" height="32" fill="#ddd6fe"/><g fill="#c4b5fd"><rect x="40" y="46" width="6" height="6"/><rect x="52" y="46" width="6" height="6"/><rect x="40" y="58" width="6" height="6"/><rect x="52" y="58" width="6" height="6"/><rect x="40" y="70" width="6" height="6"/><rect x="52" y="70" width="6" height="6"/></g><g fill="#ddd6fe"><rect x="74" y="32" width="7" height="7"/><rect x="88" y="32" width="7" height="7"/><rect x="74" y="46" width="7" height="7"/><rect x="88" y="46" width="7" height="7"/><rect x="74" y="60" width="7" height="7"/><rect x="88" y="60" width="7" height="7"/></g></svg>';
+  const data={
+    benefits:{grad:'120deg,#3b82f6,#1d4ed8',cap:'함께 누리는 다양한 복지',art:gift},
+    leave:{grad:'120deg,#10b981,#047857',cap:'충분한 휴식과 재충전',art:cal},
+    allowance:{grad:'120deg,#f59e0b,#b45309',cap:'직원을 위한 든든한 지원',art:coin},
+    company:{grad:'120deg,#8b5cf6,#6d28d9',cap:'삼호개발을 소개합니다',art:bld},
+  }[key];
+  return '<div class="banner" style="background:linear-gradient('+data.grad+')"><span class="banner-cap">'+data.cap+'</span><div class="banner-art">'+data.art+'</div></div>';
+}
+
+function renderHome(){
+  let h=section('안내');
+  h+='<div class="qgrid">';
+  categories.forEach(c=>{
+    h+='<button class="qcard" onclick="go(\''+c.id+'\')"><div class="qic" style="background:'+c.color+'">'+svg(c.icon)+'</div><div class="qtx"><h3>'+c.label+'</h3><p>'+c.desc+'</p></div></button>';
+  });
+  h+='<a class="qcard" href="../index.html"><div class="qic" style="background:#15bfa6">'+svg('home')+'</div><div class="qtx"><h3>콘도 예약신청</h3><p>제휴 콘도 예약 바로가기</p></div></a>';
+  h+='</div>';
+  h+='<div class="grid2">';
+  h+='<div class="panel"><div class="panel-head"><span class="ph-bar"></span><h3>알아두면 좋은 정보</h3></div><div class="panel-body"><ul class="dot-list"><li>연차휴가는 매년 <b>3월 1일</b>에 새로 부여됩니다.</li><li>미사용 연차는 당년도 <b>5월 중</b> 수당으로 지급됩니다.</li><li>잔여연차는 ERP <b>\'연차신청서_개인\'</b>의 잔여일수에서 확인할 수 있습니다.</li></ul></div></div>';
+  h+='<div class="panel"><div class="panel-head"><span class="ph-bar"></span><h3>주요 문의처</h3></div><div class="panel-body"><div class="kv"><span>복지 신청 문의</span><b>총무부</b></div><div class="kv"><span>콘도 이용 문의</span><a class="tel" href="tel:0220467700">02-2046-7700</a></div><div class="kv"><span>서울사무소</span><a class="tel" href="tel:0220467700">02-2046-7700</a></div></div></div>';
+  h+='</div>';
+  content.innerHTML=h;
+}
+
+function benefitCard(b,accent,key){
+  const click=b.more?' clickable" onclick="openModal(\''+key+'\')"':'"';
+  const chev=b.more?svg('chevR','chev'):'';
+  return '<button class="b-card'+click+'><div class="b-ic" style="color:'+accent+'">'+svg(b.icon)+'</div><h3>'+b.t+chev+'</h3><p>'+b.d+'</p></button>';
+}
+
+function renderBenefits(){
+  let h=sectionBanner('benefits');
+  h+=section('기본 복지','전 임직원 대상 복리후생')+'<div class="b-grid">';
+  basicBenefits.forEach((b,i)=>h+=benefitCard(b,'#2563eb','basic'+i));
+  h+='</div>';
+  h+=section('추가 복지 · 포상','성과와 노고에 대한 보상')+'<div class="b-grid">';
+  extraBenefits.forEach((b,i)=>h+=benefitCard(b,'#d97706','extra'+i));
+  h+='</div>';
+  h+=section('교육 제도','성장과 역량 강화 지원')+'<div class="b-grid">';
+  education.forEach((b,i)=>h+=benefitCard(b,'#7c3aed','edu'+i));
+  h+='</div>';
+  content.innerHTML=h;
+}
+
+function renderLeave(){
+  let h=sectionBanner('leave');
+  h+='<div class="green-box"><h3>'+svg('calendar')+' 연차 핵심 안내</h3><div class="line">• 연차는 매년 <b>3월 1일</b> 새로 부여됩니다.</div><div class="line">• 미사용 전년도분은 <b>5월 중 수당</b>으로 지급됩니다.</div><div class="line">• <b>미사용 연차 수당</b> = 미사용 연차 개수 × 일급</div><div class="line sub">일급 = 통상임금(기본급+직책수당+현장수당) ÷ 209시간 × 8시간</div><div class="line">• 잔여연차: ERP <b>\'신청관리 → 연차신청서_개인 → 잔여일수\'</b></div></div>';
+  h+=section('휴가 종류별 신청 방법','항목을 눌러 단계별 가이드를 확인하세요');
+  leaveTypes.forEach((l,i)=>{
+    h+='<button class="leave-item" onclick="openModal(\'leave'+i+'\')"><div class="leave-ic">'+svg(l.icon)+'</div><div class="body"><h3>'+l.t+'</h3><p>'+l.info[0]+'</p></div>'+svg('chevR','chev')+'</button>';
+  });
+  content.innerHTML=h;
+}
+
+function tableHtml(rows,note){
+  let h='<div class="tbl-wrap"><table><thead><tr><th>직급</th><th>현장</th><th>본사</th></tr></thead><tbody>';
+  rows.forEach(r=>h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>');
+  h+='</tbody></table>'+(note?'<div class="tbl-note">※ '+note+'</div>':'')+'</div>';
+  return h;
+}
+
+function renderAllowance(){
+  let h=sectionBanner('allowance');
+  h+=section('차량유지비 · 교통보조금','단위: 원 / 월');
+  h+=tableHtml(carTable,'현장근무자는 차량을 소유하고 현장 업무에 사용하는 자에 한해 지급됩니다.');
+  h+=section('모바일폰 지원금','단위: 원 / 월');
+  h+=tableHtml(phoneTable,'본사근무자는 별도 품의에 의한 지급대상자만 지급됩니다. 건기부 장비운전원은 제외됩니다.');
+  h+=section('유류비');
+  h+='<div class="detail-card"><p>• 현장별 차량당 월 <b>200ℓ</b> 사용 원칙 (터널현장 <b>150ℓ</b>)</p><p>• 현장 총유류량(차량대수 × 200ℓ) 내에서 전 직원이 효율적으로 사용</p><p>• 초과 사용분은 개인별 차량지원금에서 균등 공제됩니다.</p><p>• 개인 용도·출퇴근용 유류 사용은 불가합니다.</p></div>';
+  h+=section('이사비 지원');
+  h+='<div class="detail-card"><p>현장 발령으로 가족과 함께 다른 행정구역으로 이사 시 <b>편도 750,000원 이내</b> 실비를 지급합니다. (제주 등 도서지역은 대표이사 승인 시 편도 250,000원 추가 가능)</p><div class="amber-box"><div class="h">제출 서류</div><p>① 주민등록등본(이사 후) &nbsp; ② 이사비 영수증</p></div><p class="muted">※ 현장 반경 20km(특별시·광역시 30km) 이내 주민등록 이전 이사에 한합니다. 국내 현장에 한해 적용됩니다.</p></div>';
+  h+=section('상조용품 (장례) 지원');
+  h+='<div class="detail-card"><p>① 300인분 장례용품 (그릇, 젓가락, 종이컵, 종이접시)</p><p>② 근조 화환, 근조기</p></div>';
+  content.innerHTML=h;
+}
+
+function renderCompany(){
+  let h=sectionBanner('company');
+  h+=section('본사 · 사업장');
+  h+='<div class="addr-card"><h3>본사 (당진공장)</h3><div class="ar">'+svg('mappin')+'<span>충청남도 당진시 면천면 면천로 183</span></div><div class="ar">'+svg('phone')+'<a class="tel" href="tel:0413564588">041-356-4588</a></div></div>';
+  h+='<div class="addr-card"><h3>서울사무소</h3><div class="ar">'+svg('mappin')+'<span>서울특별시 서초구 효령로 96 삼호빌딩</span></div><div class="ar">'+svg('phone')+'<a class="tel" href="tel:0220467700">02-2046-7700</a></div><div class="ar">'+svg('clock')+'<span>근무 08:30~18:30 · 점심 11:30~12:30</span></div></div>';
+  h+='<div class="addr-card"><h3>현장</h3><p style="font-size:14px;color:#4b5563">현장 주소 및 담당자 연락처는 그룹웨어 우상단 <b>\'현장주소록\'</b> 버튼에서 확인할 수 있습니다.</p></div>';
+  h+=section('문의처');
+  h+='<div class="panel"><div class="panel-body"><div class="kv"><span>복지 신청 · 규정 문의</span><a class="tel" href="tel:0220467712">총무부 02-2046-7712~7715</a></div><div class="kv"><span>콘도 이용 문의</span><a class="tel" href="tel:0220467700">비서실 02-2046-7700</a></div></div></div>';
+  h+=section('기업 이념 · 인재상');
+  const vals=[['솔선수범','남보다 앞장서 행동하여 다른 사람의 본보기가 되는 사람'],['인화단결','도덕성을 바탕으로 조직과 개인의 발전을 함께하는 사람'],['건설보국','회사를 통해 나라에 공헌하며 회사를 발전시키는 사람']];
+  vals.forEach((v,i)=>h+='<div class="value-card"><div class="value-num">'+(i+1)+'</div><div><h4>'+v[0]+'</h4><p>'+v[1]+'</p></div></div>');
+  h+='<p class="footer-note">삼호개발 · 1976년 창립 · 정직원 338명 (25.09.10 기준)</p>';
+  content.innerHTML=h;
+}
+
+function renderSearch(){
+  const q=search.toLowerCase();
+  const res=searchIndex.filter(i=>((i.t+' '+(i.d||'')).toLowerCase().includes(q)));
+  let h='<p class="sr-count">'+res.length+'건의 결과</p>';
+  if(res.length===0){ h+='<div class="empty">검색 결과가 없습니다.<br>복지 신청 관련 문의는 총무부로 연락해 주세요.</div>'; }
+  res.forEach(r=>{
+    h+='<button class="sr-item" onclick="goFromSearch(\''+r.target+'\')"><div class="sr-ic">'+svg(r.icon)+'</div><div><div class="h"><span class="nm">'+r.t+'</span><span class="tag">'+r.cat+'</span></div><div class="d">'+(r.d||'')+'</div></div></button>';
+  });
+  content.innerHTML=h;
+  window.scrollTo(0,0);
+}
+
+function openModal(key){
+  let item;
+  if(key.startsWith('basic')) item=basicBenefits[+key.slice(5)];
+  else if(key.startsWith('extra')) item=extraBenefits[+key.slice(5)];
+  else if(key.startsWith('edu')) item=education[+key.slice(3)];
+  else if(key.startsWith('leave')){ item=leaveTypes[+key.slice(5)]; item={...item,isLeave:true}; }
+  if(!item) return;
+  let body='';
+  if(item.isLeave){
+    item.info.forEach(t=>body+='<p class="leave-info"><span class="dot">•</span>'+t+'</p>');
+    body+='<h4>신청 단계</h4>';
+    item.steps.forEach((s,i)=>body+='<div class="step"><div class="n">'+(i+1)+'</div><p>'+s+'</p></div>');
+    if(item.img){
+      body+='<h4>ERP 신청 화면</h4>';
+      body+='<img src="'+item.img+'" class="guide-thumb" alt="연차 신청 화면 가이드" onclick="openImg(this.src)" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">';
+      body+='<div class="img-miss">이미지 파일(<b>'+item.img+'</b>)을<br>HTML 파일과 같은 폴더에 넣어주세요.</div>';
+      body+='<p class="muted" style="margin-top:8px">이미지를 누르면 크게 볼 수 있습니다.</p>';
+    }
+  } else {
+    body='<p class="pl">'+esc(item.more||item.d)+'</p>';
+  }
+  modalRoot.innerHTML='<div class="overlay" onclick="closeModal(event)"><div class="modal" onclick="event.stopPropagation()"><div class="modal-head"><div class="left"><div class="modal-ic">'+svg(item.icon)+'</div><h3>'+item.t+'</h3></div><button class="modal-close" onclick="closeModal()">'+svg('x')+'</button></div><div class="modal-body">'+body+'</div></div></div>';
+}
+function closeModal(e){ modalRoot.innerHTML=''; }
+function openImg(src){ var d=document.createElement('div'); d.className='img-overlay'; d.onclick=function(){ d.remove(); }; d.innerHTML='<img src="'+src+'" alt="연차 신청 화면 가이드">'; document.body.appendChild(d); }
+
+function go(v){ view=v; search=''; searchInput.value=''; clearBtn.style.display='none'; render(); }
+function goFromSearch(v){ view=v; search=''; searchInput.value=''; clearBtn.style.display='none'; render(); }
+
+searchInput.addEventListener('input', e=>{ search=e.target.value; clearBtn.style.display=search?'block':'none'; render(); });
+clearBtn.addEventListener('click', ()=>{ search=''; searchInput.value=''; clearBtn.style.display='none'; render(); });
+
+render();
+</script>
+</body>
+</html>
